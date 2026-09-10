@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="css/style.css" />
+    <link rel="stylesheet" href="css/responsive.css" />
+    <link rel="icon" href="logos/favicon.ico" type="image/x-icon" />
+    <title>Вход в личный кабинет — KoreaAuto</title>
+  </head>
+  <body style="background: #ffffff">
+    <div class="auth-page">
+      <!-- Верхняя часть с логотипом -->
+      <div class="auth-header">
+        <a href="index.html">
+          <img
+            id="headerlogo_login"
+            src="logos/KoreaAuto_logo_darkblue.png"
+            alt="KoreaAuto"
+          />
+        </a>
+        <div class="subtitle">АВТО ПОД ЗАКАЗ</div>
+      </div>
+
+      <!-- Окно авторизации (точно по дизайну из скриншота) -->
+      <div class="login-card">
+        <h1>Вход в личный кабинет</h1>
+        <p class="description">Заполните поля ниже для входа</p>
+
+        <form id="loginForm">
+          <!-- Логин (Email) -->
+          <div class="input-group">
+            <label for="loginEmail">Логин (Email)</label>
+            <input
+              type="email"
+              id="loginEmail"
+              required
+              autocomplete="email"
+              placeholder="your@email.com"
+            />
+          </div>
+
+          <!-- Пароль -->
+          <div class="input-group">
+            <label for="loginPassword">Пароль</label>
+            <input
+              type="password"
+              id="loginPassword"
+              required
+              autocomplete="current-password"
+              placeholder="••••••••"
+            />
+          </div>
+
+          <!-- Запомнить меня -->
+          <label class="remember">
+            <input type="checkbox" id="rememberMe" checked />
+            <span>Запомнить меня</span>
+          </label>
+
+          <!-- Кнопка Войти -->
+          <button type="submit" id="loginButton" class="primary-btn" disabled>
+            Войти
+          </button>
+        </form>
+
+        <div class="auth-links">
+          <a
+            href="#"
+            id="forgotPasswordLink"
+            style="font-size: 14px; color: #718096"
+            >Забыли пароль?</a
+          >
+          <a href="register.html" class="register">
+            Нет аккаунта? Зарегистрироваться
+          </a>
+        </div>
+
+        <div class="site-copyright-link">
+          <a href="index.html" style="color: #2859a8">koreaauto.kz</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Скрипты -->
+    <script type="module" src="js/main.js"></script>
+    <script type="module">
+      import { initLoginForm } from "./js/auth.js";
+      initLoginForm();
+    </script>
+  </body>
+</html>

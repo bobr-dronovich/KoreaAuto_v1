@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/responsive.css">
+    <link rel="icon" href="logos/favicon.ico" type="image/x-icon">
+    <title>Панель администратора — KoreaAuto</title>
+</head>
+<body style="background: #f4f6f9;">
+
+    <!-- ШАПКА -->
+    <header class="header">
+        <div class="header-container">
+            <a href="index.html" class="logo">
+                <img id="headerlogo" src="logos/KoreaAuto_logo_darkblue.png" alt="KoreaAuto">
+            </a>
+            <div style="font-weight: 700; color: #e52b38; display: flex; align-items: center; gap: 8px;">
+                <span class="role-tag admin-tag" style="font-size: 13px; padding: 4px 10px;">ПАНЕЛЬ УПРАВЛЕНИЯ ADMIN</span>
+            </div>
+            <div class="header-right" style="margin-left: auto;">
+                <a href="index.html" class="nav-link">← На главную сайта</a>
+                <div id="headerAuthArea">
+                    <a href="login.html" class="login-button">Вход</a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- КОНТЕНТ АДМИНКИ -->
+    <main class="container" style="padding-top: 24px; padding-bottom: 60px;">
+        
+        <!-- Заголовок и кнопки добавления -->
+        <div class="page-title-row">
+            <div>
+                <h1 class="page-title">Административная панель KoreaAuto</h1>
+                <p style="color: #718096; font-size: 14px; margin-top: 4px;">Управление каталогом авто, заказами, клиентами и массовым добавлением</p>
+            </div>
+            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                <button id="adminBatchAddBtn" class="primary-btn" style="width: auto; height: 42px; padding: 0 18px; font-size: 14px; background: #2563eb;">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+                    Массовое добавление авто
+                </button>
+                <button id="seedDemoDataBtn" class="secondary-btn" style="width: auto; height: 42px; padding: 0 16px; font-size: 13px; border-color: #2859a8; color: #2859a8;">
+                    ⚡ Быстрый импорт 10 авто
+                </button>
+            </div>
+        </div>
+
+        <!-- Сводная статистика (ТЗ: Статистика) -->
+        <div class="admin-stats-grid">
+            <div class="admin-stat-card">
+                <div class="label">Всего авто в каталоге</div>
+                <div class="val" id="statTotalCars">0</div>
+            </div>
+            <div class="admin-stat-card">
+                <div class="label">Всего заявок / заказов</div>
+                <div class="val" id="statTotalApps" style="color: #e52b38;">0</div>
+            </div>
+            <div class="admin-stat-card">
+                <div class="label">Активные заявки в работе</div>
+                <div class="val" id="statActiveApps" style="color: #dd6b20;">0</div>
+            </div>
+            <div class="admin-stat-card">
+                <div class="label">Зарегистрировано клиентов</div>
+                <div class="val" id="statTotalUsers" style="color: #38a169;">0</div>
+            </div>
+        </div>
+
+        <!-- Вкладки управления -->
+        <div class="admin-tabs">
+            <button class="admin-tab-btn active" data-tab="tabCars">Автомобили (Каталог)</button>
+            <button class="admin-tab-btn" data-tab="tabApplications">Заявки клиентов (Real-Time)</button>
+            <button class="admin-tab-btn" data-tab="tabUsers">Пользователи и Роли</button>
+            <button class="admin-tab-btn" data-tab="tabModeration">Модерация отзывов</button>
+        </div>
+
+        <!-- 1. ВКЛАДКА: АВТОМОБИЛИ (CRUD) -->
+        <div class="admin-tab-content active" id="tabCars">
+            <div class="admin-panel-card">
+                <div class="admin-panel-card-header">
+                    <div>
+                        <h2 style="font-size: 18px; font-weight: 700;">Каталог автомобилей из Кореи</h2>
+                        <span style="font-size: 13px; color: #718096;">Карточки выводятся в стиле WestMotors (воны ₩, доллары $, тенге ₸)</span>
+                    </div>
+                    <div style="display: flex; gap: 10px;">
+                        <button class="primary-btn" id="adminAddCarBtn" style="width: auto; height: 38px; padding: 0 16px; font-size: 14px;">
+                            + Добавить одно авто
+                        </button>
+                    </div>
+                </div>
+
+                <div class="app-table-wrap">
+                    <table class="app-table">
+                        <thead>
+                            <tr>
+                                <th>Фото</th>
+                                <th>Марка и Модель</th>
+                                <th>Год</th>
+                                <th>Цена (USD / KRW / ₸)</th>
+                                <th>Топливо / КПП</th>
+                                <th>Статус</th>
+                                <th>Действия</th>
+                            </tr>
+                        </thead>
+                        <tbody id="adminCarsTableBody">
+                            <!-- Загружается динамически -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. ВКЛАДКА: ЗАЯВКИ (Real-Time onSnapshot) -->
+        <div class="admin-tab-content" id="tabApplications">
+            <div class="admin-panel-card">
+                <div class="admin-panel-card-header">
+                    <h2 style="font-size: 18px; font-weight: 700;">Заявки на покупку и подбор авто</h2>
+                    <span style="font-size: 13px; color: #38a169; font-weight: 600;">● Синхронизация Firestore в реальном времени</span>
+                </div>
+
+                <div class="app-table-wrap">
+                    <table class="app-table">
+                        <thead>
+                            <tr>
+                                <th>№ Заявки</th>
+                                <th>Клиент и Контакты</th>
+                                <th>Автомобиль</th>
+                                <th>Дата</th>
+                                <th>Текущий статус</th>
+                                <th>Изменить статус</th>
+                                <th>Удаление</th>
+                            </tr>
+                        </thead>
+                        <tbody id="adminAppsTableBody">
+                            <!-- Загружается динамически через onSnapshot -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3. ВКЛАДКА: ПОЛЬЗОВАТЕЛИ И РОЛИ -->
+        <div class="admin-tab-content" id="tabUsers">
+            <div class="admin-panel-card">
+                <div class="admin-panel-card-header">
+                    <h2 style="font-size: 18px; font-weight: 700;">Список пользователей и права доступа</h2>
+                </div>
+
+                <div class="app-table-wrap">
+                    <table class="app-table">
+                        <thead>
+                            <tr>
+                                <th>Имя</th>
+                                <th>Email</th>
+                                <th>Телефон</th>
+                                <th>Роль доступа</th>
+                                <th>Дата регистрации</th>
+                            </tr>
+                        </thead>
+                        <tbody id="adminUsersTableBody">
+                            <!-- Загружается динамически -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- 4. ВКЛАДКА: МОДЕРАЦИЯ ОТЗЫВОВ -->
+        <div class="admin-tab-content" id="tabModeration">
+            <div class="admin-panel-card">
+                <div class="admin-panel-card-header">
+                    <h2 style="font-size: 18px; font-weight: 700;">Модерация отзывов и комментариев</h2>
+                    <span style="font-size: 13px; color: #718096;">Удаление спама и некорректных отзывов</span>
+                </div>
+
+                <div id="adminReviewsList">
+                    <!-- Загружается динамически -->
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- МОДАЛЬНОЕ ОКНО: ОДИНОЧНОЕ ДОБАВЛЕНИЕ / РЕДАКТИРОВАНИЕ АВТО (CRUD) -->
+    <div class="modal-overlay" id="carEditModal">
+        <div class="modal-card" style="max-width: 680px;">
+            <button class="modal-close-btn" onclick="closeModal('carEditModal')">&times;</button>
+            <h3 class="modal-title" id="carModalTitle">Параметры автомобиля (WestMotors формат)</h3>
+            <p class="modal-desc">Заполните характеристики корейского автомобиля со всеми валютами и параметрами.</p>
+
+            <form id="carEditForm">
+                <input type="hidden" id="adminCarId">
+
+                <!-- Марка, Модель, Комплектация -->
+                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px;">
+                    <div class="input-group">
+                        <label for="adminCarBrand">Марка</label>
+                        <input type="text" id="adminCarBrand" required placeholder="Genesis">
+                    </div>
+                    <div class="input-group">
+                        <label for="adminCarModel">Модель</label>
+                        <input type="text" id="adminCarModel" required placeholder="GV70">
+                    </div>
+                    <div class="input-group">
+                        <label for="adminCarYear">Год выпуска</label>
+                        <input type="number" id="adminCarYear" required min="2012" max="2026" value="2026">
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label for="adminCarTrim">Комплектация (подзаголовок)</label>
+                    <input type="text" id="adminCarTrim" placeholder="2.5T Gasoline AWD">
+                </div>
+
+                <!-- Цены в 3 валютах (USD, KRW воны, KZT тенге / рубли) -->
+                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px;">
+                    <div class="input-group">
+                        <label for="adminCarPriceUSD">Цена в USD ($)</label>
+                        <input type="number" id="adminCarPriceUSD" required placeholder="38325">
+                    </div>
+                    <div class="input-group">
+                        <label for="adminCarPriceKRW">Цена в Корее (₩)</label>
+                        <input type="number" id="adminCarPriceKRW" placeholder="50900000">
+                    </div>
+                    <div class="input-group">
+                        <label for="adminCarPriceKZT">Цена в тенге (₸) / ₽</label>
+                        <input type="number" id="adminCarPriceKZT" placeholder="17437807">
+                    </div>
+                </div>
+
+                <!-- Технические параметры -->
+                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 12px;">
+                    <div class="input-group">
+                        <label for="adminCarMileage">Пробег (км)</label>
+                        <input type="number" id="adminCarMileage" required placeholder="4417">
+                    </div>
+                    <div class="input-group">
+                        <label for="adminCarFuel">Топливо</label>
+                        <select id="adminCarFuel" class="filter-select" style="height: 52px;">
+                            <option value="Бензин">Бензин</option>
+                            <option value="Дизель">Дизель</option>
+                            <option value="Гибрид">Гибрид</option>
+                            <option value="Электро">Электро</option>
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <label for="adminCarTrans">КПП</label>
+                        <select id="adminCarTrans" class="filter-select" style="height: 52px;">
+                            <option value="Автомат (AT)">Автомат (AT)</option>
+                            <option value="Робот">Робот</option>
+                            <option value="Вариатор">Вариатор</option>
+                            <option value="Редуктор">Редуктор</option>
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <label for="adminCarSeats">Мест</label>
+                        <input type="number" id="adminCarSeats" value="5" min="2" max="11">
+                    </div>
+                </div>
+
+                <!-- Локация и Состояние -->
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                    <div class="input-group">
+                        <label for="adminCarLocation">Локация</label>
+                        <input type="text" id="adminCarLocation" value="Местная сборка • Кёнгидо">
+                    </div>
+                    <div class="input-group">
+                        <label for="adminCarCondition">Состояние</label>
+                        <input type="text" id="adminCarCondition" value="Как новая">
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label for="adminCarImage">Главное фото автомобиля (URL)</label>
+                    <input type="url" id="adminCarImage" required placeholder="https://images.unsplash.com/photo-...">
+                </div>
+
+                <div class="input-group">
+                    <label for="adminCarDesc">Описание и комплектация</label>
+                    <textarea id="adminCarDesc" placeholder="Панорамная крыша, адаптивный круиз, проекционный дисплей, аудиосистема..."></textarea>
+                </div>
+
+                <div style="display: flex; gap: 12px; margin-top: 20px;">
+                    <button type="button" class="secondary-btn" onclick="closeModal('carEditModal')">Отмена</button>
+                    <button type="submit" class="primary-btn" style="height: 48px;">Сохранить автомобиль</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- МОДАЛЬНОЕ ОКНО: МАССОВОЕ ДОБАВЛЕНИЕ АВТОМОБИЛЕЙ (BATCH ADDER) -->
+    <div class="modal-overlay" id="batchAddModal">
+        <div class="modal-card" style="max-width: 860px;">
+            <button class="modal-close-btn" onclick="closeModal('batchAddModal')">&times;</button>
+            <h3 class="modal-title">Массовое добавление нескольких карточек</h3>
+            <p class="modal-desc">Выберите готовый пакет автомобилей для быстрой загрузки или внесите несколько строк одновременно.</p>
+
+            <!-- Переключатель режимов массового добавления -->
+            <div class="admin-tabs" style="margin-bottom: 20px;">
+                <button class="admin-tab-btn active" id="btnBatchTabPresets">1. Готовые пакеты (1 клик)</button>
+                <button class="admin-tab-btn" id="btnBatchTabTable">2. Таблица ввода строк</button>
+            </div>
+
+            <!-- Режим 1: Готовые пакеты -->
+            <div id="batchTabPresetsContent">
+                <div class="batch-presets-grid">
+                    <button class="batch-preset-btn" data-preset="crossovers">
+                        <div class="title">🚗 Пакет: Кроссоверы (3 авто)</div>
+                        <div class="desc">Genesis GV70 2026, Genesis GV80 Executive, Hyundai Santa Fe Calligraphy</div>
+                    </button>
+                    <button class="batch-preset-btn" data-preset="family">
+                        <div class="title">🚐 Пакет: Семейные и Минивэны (3 авто)</div>
+                        <div class="desc">Kia Carnival Signature 9 мест, Hyundai Palisade Prestige, Kia Sorento Master</div>
+                    </button>
+                    <button class="batch-preset-btn" data-preset="sedans">
+                        <div class="title">🏎️ Пакет: Седаны и Спорт (3 авто)</div>
+                        <div class="desc">Genesis G80 3.5T Sport, Kia K5 GT-Line, Hyundai Tucson N Line</div>
+                    </button>
+                    <button class="batch-preset-btn" data-preset="all10" style="border-color: #2563eb; background: #eff6ff;">
+                        <div class="title" style="color: #1d4ed8;">⚡ Полный пакет Кореи (10 карточек)</div>
+                        <div class="desc">Загрузить все 10 моделей с фото, ценами в ₩/$/₸ и отчетами Encar</div>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Режим 2: Таблица нескольких строк -->
+            <div id="batchTabTableContent" style="display: none;">
+                <div class="batch-table-wrap">
+                    <table class="app-table batch-table" id="batchInputTable">
+                        <thead>
+                            <tr>
+                                <th style="width: 130px;">Марка</th>
+                                <th style="width: 140px;">Модель</th>
+                                <th style="width: 90px;">Год</th>
+                                <th style="width: 120px;">Цена ($)</th>
+                                <th style="width: 100px;">Пробег (км)</th>
+                                <th style="width: 110px;">Топливо</th>
+                                <th>Ссылка на фото</th>
+                                <th style="width: 40px;"></th>
+                            </tr>
+                        </thead>
+                        <tbody id="batchRowsTbody">
+                            <!-- Строки добавляются динамически -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 14px;">
+                    <button type="button" class="secondary-btn" id="addBatchRowBtn" style="width: auto; height: 38px; padding: 0 16px;">
+                        + Добавить еще строку авто
+                    </button>
+                    <button type="button" class="primary-btn" id="submitBatchTableBtn" style="width: auto; height: 42px; padding: 0 24px; background: #16a34a;">
+                        💾 Сохранить все строки в Firestore
+                    </button>
+                </div>
+            </div>
+
+            <div style="margin-top: 24px; text-align: right;">
+                <button type="button" class="secondary-btn" onclick="closeModal('batchAddModal')" style="width: auto; display: inline-flex;">Закрыть</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Подвал -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-bottom" style="border-top:none; padding-top:0;">
+                <div>© 2026 KoreaAuto. Административная панель.</div>
+                <div>Firebase Firestore + Authentication</div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- СКРИПТЫ -->
+    <script type="module" src="js/main.js"></script>
+    <script type="module">
+        import { initAdminPage } from "./js/admin.js";
+        import { closeModal } from "./js/utils.js";
+        window.closeModal = closeModal;
+        initAdminPage();
+    </script>
+</body>
+</html>

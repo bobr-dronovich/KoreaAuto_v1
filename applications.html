@@ -1,0 +1,307 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="css/style.css" />
+    <link rel="stylesheet" href="css/responsive.css" />
+    <link rel="icon" href="logos/favicon.ico" type="image/x-icon" />
+    <title>Мои заявки и бронирования — KoreaAuto</title>
+  </head>
+  <body>
+    <!-- ШАПКА -->
+    <header class="header">
+      <div class="header-container">
+        <a href="index.html" class="logo">
+          <img
+            id="headerlogo"
+            src="logos/KoreaAuto_logo_darkblue.png"
+            alt="KoreaAuto"
+          />
+        </a>
+        <button class="menu-button">
+          <span class="hamburger"><span></span><span></span><span></span></span>
+          <span>Меню</span>
+        </button>
+        <div class="search-box">
+          <input
+            type="text"
+            id="headerSearchInput"
+            placeholder="Поиск марки, модели или VIN..."
+          />
+          <button class="search-icon-btn" id="headerSearchBtn">
+            <svg
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+          </button>
+        </div>
+        <div class="header-right">
+          <a href="favorites.html" class="nav-link" title="Избранное">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+              <path
+                d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"
+              />
+            </svg>
+            <span class="badge-count fav-count-badge" style="display: none"
+              >0</span
+            >
+          </a>
+          <a href="tel:+77750074565" class="phone">+7 (775) 007-45-65</a>
+          <button class="consultation-button">Консультация</button>
+          <div id="headerAuthArea">
+            <a href="login.html" class="login-button">Вход</a>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Мобильное меню -->
+    <div class="mobile-nav-overlay" id="mobileNavOverlay"></div>
+    <aside class="mobile-nav-drawer" id="mobileNavDrawer">
+      <div class="drawer-header">
+        <img
+          src="logos/KoreaAuto_logo_darkblue.png"
+          style="width: 140px"
+          alt="KoreaAuto"
+        />
+        <button class="drawer-close-btn" id="closeDrawerBtn">&times;</button>
+      </div>
+      <div class="drawer-links">
+        <a href="index.html">Главный каталог</a>
+        <a href="applications.html">Мои заявки</a>
+        <a href="favorites.html">Избранные авто</a>
+        <a href="profile.html">Личный кабинет</a>
+        <a href="admin.html">Админ-панель</a>
+      </div>
+    </aside>
+
+    <!-- КОНТЕНТ -->
+    <main class="container" style="padding-top: 24px; padding-bottom: 60px">
+      <div class="page-title-row">
+        <div>
+          <h1 class="page-title">Мои активные заявки и заказы</h1>
+          <p style="color: #718096; font-size: 14px; margin-top: 4px">
+            Управляйте процессом подбора, доставки и статусами оформления
+            автомобилей
+          </p>
+        </div>
+        <a
+          href="index.html"
+          class="primary-btn"
+          style="width: auto; height: 42px; padding: 0 20px; font-size: 14px"
+        >
+          + Выбрать еще авто
+        </a>
+      </div>
+
+      <!-- Таблица активных действий -->
+      <div class="admin-panel-card">
+        <div class="app-table-wrap">
+          <table class="app-table">
+            <thead>
+              <tr>
+                <th>Номер</th>
+                <th>Автомобиль</th>
+                <th>Стоимость под ключ</th>
+                <th>Дата заявки</th>
+                <th>Статус выполнения</th>
+                <th>Действия</th>
+              </tr>
+            </thead>
+            <tbody id="activeAppsTableBody">
+              <!-- Рендер в реальном времени -->
+            </tbody>
+          </table>
+        </div>
+
+        <div
+          id="noAppsNotice"
+          style="text-align: center; padding: 48px 20px; display: none"
+        >
+          <div style="font-size: 44px; margin-bottom: 12px">📑</div>
+          <h3 style="font-size: 18px; margin-bottom: 6px">
+            У вас пока нет активных заявок
+          </h3>
+          <p style="color: #718096; font-size: 14px; margin-bottom: 20px">
+            Выберите понравившийся автомобиль в каталоге или закажите
+            индивидуальный подбор из Кореи.
+          </p>
+          <a
+            href="index.html"
+            class="primary-btn"
+            style="
+              display: inline-flex;
+              width: auto;
+              padding: 0 28px;
+              height: 44px;
+              font-size: 15px;
+            "
+          >
+            Перейти в каталог
+          </a>
+        </div>
+      </div>
+
+      <!-- Подсказка по статусам -->
+      <div
+        style="
+          background: #ffffff;
+          border-radius: 8px;
+          border: 1px solid #eef0f4;
+          padding: 24px;
+          margin-top: 24px;
+        "
+      >
+        <h3
+          style="
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 12px;
+            color: #1a202c;
+          "
+        >
+          Как отслеживать этапы доставки:
+        </h3>
+        <div
+          style="
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            font-size: 13px;
+          "
+        >
+          <div>
+            <span class="status-badge status-new">Новая</span>
+            <p style="color: #718096; margin-top: 6px">
+              Заявка принята, специалист формирует детальный расчет расходов и
+              фотоотчет с Encar.
+            </p>
+          </div>
+          <div>
+            <span class="status-badge status-in_progress">В обработке</span>
+            <p style="color: #718096; margin-top: 6px">
+              Наш эксперт в Сеуле выехал на осмотр авто с толщиномером и
+              сканером диагностики.
+            </p>
+          </div>
+          <div>
+            <span class="status-badge status-approved">Подтверждена</span>
+            <p style="color: #718096; margin-top: 6px">
+              Договор подписан, автомобиль выкуплен с площадки и готовится к
+              отправке в порт.
+            </p>
+          </div>
+          <div>
+            <span class="status-badge status-shipping">В пути из Кореи</span>
+            <p style="color: #718096; margin-top: 6px">
+              Авто погружено на паром/автовоз, идет транспортировка и
+              растаможка.
+            </p>
+          </div>
+          <div>
+            <span class="status-badge status-completed">Выдана</span>
+            <p style="color: #718096; margin-top: 6px">
+              Автомобиль полностью оформлен, выдан клиенту со всеми документами.
+            </p>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Подвал -->
+    <footer class="footer">
+      <div class="container">
+        <div class="footer-bottom" style="border-top: none; padding-top: 0">
+          <div>© 2026 KoreaAuto. Мои заявки.</div>
+          <div>Firebase Firestore + Authentication</div>
+        </div>
+      </div>
+    </footer>
+
+    <!-- Скрипты -->
+    <script type="module" src="js/main.js"></script>
+    <script type="module">
+      import {
+        requireAuth,
+        formatDate,
+        formatPrice,
+        getStatusBadge,
+      } from "./js/utils.js";
+      import {
+        subscribeUserApplications,
+        cancelApplication,
+      } from "./js/applications.js";
+
+      async function initPage() {
+        const authData = await requireAuth();
+        if (!authData) return;
+
+        const { user } = authData;
+        const tableBody = document.getElementById("activeAppsTableBody");
+        const emptyNotice = document.getElementById("noAppsNotice");
+
+        subscribeUserApplications(user.uid, (apps) => {
+          if (apps.length === 0) {
+            tableBody.innerHTML = "";
+            emptyNotice.style.display = "block";
+            return;
+          }
+
+          emptyNotice.style.display = "none";
+          tableBody.innerHTML = apps
+            .map((app) => {
+              const canCancel =
+                app.status === "new" || app.status === "in_progress";
+              return `
+                        <tr>
+                            <td><strong>#${app.id.slice(0, 6).toUpperCase()}</strong></td>
+                            <td>
+                                <div style="display: flex; align-items: center; gap: 12px;">
+                                    <img src="${app.carImage || "logos/KoreaAuto_logo_darkblue.png"}" style="width: 55px; height: 38px; object-fit: cover; border-radius: 4px;" onerror="this.src='logos/KoreaAuto_logo_darkblue.png'">
+                                    <div>
+                                        <div style="font-weight: 700;">${app.carTitle}</div>
+                                        <div style="font-size: 12px; color: #718096;">${app.comment || "Без дополнительного комментария"}</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td><strong style="color: #e52b38;">${formatPrice(app.carPrice)}</strong></td>
+                            <td>${formatDate(app.createdAt)}</td>
+                            <td>${getStatusBadge(app.status)}</td>
+                            <td>
+                                ${
+                                  canCancel
+                                    ? `
+                                    <button class="btn-sm-danger cancel-action-btn" data-id="${app.id}">
+                                        Отменить
+                                    </button>
+                                `
+                                    : `
+                                    <span style="font-size: 12px; color: #a0aec0;">Завершено</span>
+                                `
+                                }
+                            </td>
+                        </tr>
+                    `;
+            })
+            .join("");
+
+          tableBody.querySelectorAll(".cancel-action-btn").forEach((btn) => {
+            btn.addEventListener("click", () => {
+              cancelApplication(btn.getAttribute("data-id"));
+            });
+          });
+        });
+      }
+
+      initPage();
+    </script>
+  </body>
+</html>

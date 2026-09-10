@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="css/style.css" />
+    <link rel="stylesheet" href="css/responsive.css" />
+    <link rel="icon" href="logos/favicon.ico" type="image/x-icon" />
+    <title>Регистрация аккаунта — KoreaAuto</title>
+  </head>
+  <body style="background: #ffffff">
+    <div class="auth-page">
+      <!-- Логотип бренда -->
+      <div class="auth-header">
+        <a href="index.html">
+          <img
+            id="headerlogo_login"
+            src="logos/KoreaAuto_logo_darkblue.png"
+            alt="KoreaAuto"
+          />
+        </a>
+        <div class="subtitle">АВТО ПОД ЗАКАЗ</div>
+      </div>
+
+      <!-- Окно регистрации в едином стиле -->
+      <div class="register-card">
+        <h1>Создание аккаунта</h1>
+        <p class="description">
+          Заполните данные для доступа к личному кабинету и бронированию авто
+        </p>
+
+        <form id="registerForm">
+          <!-- Имя -->
+          <div class="input-group">
+            <label for="regName">Имя и Фамилия</label>
+            <input
+              type="text"
+              id="regName"
+              required
+              autocomplete="name"
+              placeholder="Иван Иванов"
+            />
+          </div>
+
+          <!-- Email -->
+          <div class="input-group">
+            <label for="regEmail">Электронная почта</label>
+            <input
+              type="email"
+              id="regEmail"
+              required
+              autocomplete="email"
+              placeholder="your@email.com"
+            />
+          </div>
+
+          <!-- Телефон -->
+          <div class="input-group">
+            <label for="regPhone">Номер телефона</label>
+            <input
+              type="tel"
+              id="regPhone"
+              autocomplete="tel"
+              placeholder="+7 (775) 000-00-00"
+            />
+          </div>
+
+          <!-- Пароль -->
+          <div class="input-group">
+            <label for="regPassword">Пароль (от 6 символов)</label>
+            <input
+              type="password"
+              id="regPassword"
+              required
+              minlength="6"
+              autocomplete="new-password"
+              placeholder="••••••••"
+            />
+          </div>
+
+          <!-- Подтверждение пароля -->
+          <div class="input-group">
+            <label for="regConfirmPassword">Повторите пароль</label>
+            <input
+              type="password"
+              id="regConfirmPassword"
+              required
+              minlength="6"
+              autocomplete="new-password"
+              placeholder="••••••••"
+            />
+          </div>
+
+          <!-- Кнопка регистрации -->
+          <button
+            type="submit"
+            id="registerButton"
+            class="primary-btn"
+            disabled
+          >
+            Зарегистрироваться
+          </button>
+        </form>
+
+        <div class="auth-links">
+          <a href="login.html" class="register"> Уже есть аккаунт? Войти </a>
+        </div>
+
+        <div class="site-copyright-link">
+          <a href="index.html" style="color: #2859a8">koreaauto.kz</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Скрипты -->
+    <script type="module" src="js/main.js"></script>
+    <script type="module">
+      import { initRegisterForm } from "./js/auth.js";
+      initRegisterForm();
+    </script>
+  </body>
+</html>

@@ -1,0 +1,280 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="css/style.css" />
+    <link rel="stylesheet" href="css/responsive.css" />
+    <link rel="icon" href="logos/favicon.ico" type="image/x-icon" />
+    <title>Личный кабинет — KoreaAuto</title>
+  </head>
+  <body>
+    <!-- ШАПКА -->
+    <header class="header">
+      <div class="header-container">
+        <a href="index.html" class="logo">
+          <img
+            id="headerlogo"
+            src="logos/KoreaAuto_logo_darkblue.png"
+            alt="KoreaAuto"
+          />
+        </a>
+        <button class="menu-button">
+          <span class="hamburger"><span></span><span></span><span></span></span>
+          <span>Меню</span>
+        </button>
+        <div class="search-box">
+          <input
+            type="text"
+            id="headerSearchInput"
+            placeholder="Поиск марки, модели или VIN..."
+          />
+          <button class="search-icon-btn" id="headerSearchBtn">
+            <svg
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+          </button>
+        </div>
+        <div class="header-right">
+          <a href="favorites.html" class="nav-link" title="Избранное">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+              <path
+                d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"
+              />
+            </svg>
+            <span class="badge-count fav-count-badge" style="display: none"
+              >0</span
+            >
+          </a>
+          <a href="tel:+77750074565" class="phone">+7 (775) 007-45-65</a>
+          <button class="consultation-button">Консультация</button>
+          <div id="headerAuthArea">
+            <a href="login.html" class="login-button">Вход</a>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Мобильное меню -->
+    <div class="mobile-nav-overlay" id="mobileNavOverlay"></div>
+    <aside class="mobile-nav-drawer" id="mobileNavDrawer">
+      <div class="drawer-header">
+        <img
+          src="logos/KoreaAuto_logo_darkblue.png"
+          style="width: 140px"
+          alt="KoreaAuto"
+        />
+        <button class="drawer-close-btn" id="closeDrawerBtn">&times;</button>
+      </div>
+      <div class="drawer-links">
+        <a href="index.html">Главный каталог</a>
+        <a href="applications.html">Мои заявки</a>
+        <a href="favorites.html">Избранные авто</a>
+        <a href="profile.html">Личный кабинет</a>
+        <a href="admin.html">Админ-панель</a>
+      </div>
+    </aside>
+
+    <!-- ОСНОВНОЙ КОНТЕНТ -->
+    <main class="container" style="padding-top: 20px; padding-bottom: 60px">
+      <div class="page-title-row">
+        <h1 class="page-title">Личный кабинет клиента</h1>
+        <div style="font-size: 14px; color: #718096">
+          Статус синхронизации:
+          <strong style="color: #38a169">● Real-Time (onSnapshot)</strong>
+        </div>
+      </div>
+
+      <div class="profile-grid">
+        <!-- Левая колонка: Профиль пользователя -->
+        <aside class="profile-card">
+          <div class="user-avatar-circle" id="avatarLetter">U</div>
+          <h3
+            style="font-size: 20px; font-weight: 700; margin-bottom: 4px"
+            id="profileEmail"
+          >
+            Загрузка профиля...
+          </h3>
+          <span
+            id="profileRoleBadge"
+            class="role-tag"
+            style="margin-bottom: 20px; display: inline-block"
+            >...</span
+          >
+
+          <form id="profileForm" style="margin-top: 10px">
+            <div class="input-group">
+              <label for="profileName">Имя и фамилия</label>
+              <input type="text" id="profileName" required />
+            </div>
+
+            <div class="input-group">
+              <label for="profilePhone">Контактный телефон</label>
+              <input
+                type="tel"
+                id="profilePhone"
+                placeholder="+7 (___) ___-__-__"
+              />
+            </div>
+
+            <button
+              type="submit"
+              class="primary-btn"
+              style="height: 44px; font-size: 15px"
+            >
+              Сохранить изменения
+            </button>
+          </form>
+
+          <hr
+            style="border: none; border-top: 1px solid #edf2f7; margin: 24px 0"
+          />
+
+          <div style="display: flex; flex-direction: column; gap: 10px">
+            <a
+              href="applications.html"
+              class="secondary-btn"
+              style="font-size: 14px"
+              >Перейти к моим заявкам</a
+            >
+            <a
+              href="favorites.html"
+              class="secondary-btn"
+              style="font-size: 14px"
+              >Мое избранное</a
+            >
+          </div>
+        </aside>
+
+        <!-- Правая колонка: История действий и отзывы -->
+        <div>
+          <!-- Таблица истории заявок (Real-Time onSnapshot) -->
+          <div class="admin-panel-card" style="margin-bottom: 32px">
+            <div class="admin-panel-card-header">
+              <h2 style="font-size: 18px; font-weight: 700; color: #1a202c">
+                История заказов и бронирований
+              </h2>
+              <span style="font-size: 13px; color: #718096"
+                >Обновляется автоматически при смене статуса</span
+              >
+            </div>
+
+            <div class="app-table-wrap">
+              <table class="app-table">
+                <thead>
+                  <tr>
+                    <th>№ Заявки</th>
+                    <th>Автомобиль</th>
+                    <th>Сумма</th>
+                    <th>Дата создания</th>
+                    <th>Текущий статус</th>
+                    <th>Действие</th>
+                  </tr>
+                </thead>
+                <tbody id="profileAppsTableBody">
+                  <!-- Рендерится через onSnapshot в profile.js -->
+                </tbody>
+              </table>
+            </div>
+
+            <div
+              id="profileEmptyApps"
+              style="
+                text-align: center;
+                padding: 30px;
+                display: none;
+                color: #718096;
+              "
+            >
+              У вас пока нет оформленных заявок. Выберите понравившийся
+              автомобиль в
+              <a href="index.html" style="color: #2859a8; font-weight: 600"
+                >каталоге</a
+              >.
+            </div>
+          </div>
+
+          <!-- Блок управления своими отзывами (ТЗ: редактировать или удалять свои отзывы) -->
+          <div class="admin-panel-card">
+            <div class="admin-panel-card-header">
+              <h2 style="font-size: 18px; font-weight: 700; color: #1a202c">
+                Мои отзывы и комментарии
+              </h2>
+              <span style="font-size: 13px; color: #718096"
+                >Вы можете редактировать или удалять свои публикации</span
+              >
+            </div>
+
+            <div
+              id="userReviewsList"
+              style="display: flex; flex-direction: column; gap: 12px"
+            >
+              <!-- Рендерятся через profile.js -->
+            </div>
+
+            <div
+              id="emptyUserReviews"
+              style="
+                text-align: center;
+                padding: 24px;
+                display: none;
+                color: #718096;
+              "
+            >
+              Вы еще не оставляли отзывов об автомобилях.
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Модалка консультации -->
+    <div class="modal-overlay" id="consultModal">
+      <div class="modal-card">
+        <button class="modal-close-btn">&times;</button>
+        <h3 class="modal-title">Консультация</h3>
+        <p class="modal-desc">
+          Оставьте номер телефона, и наш менеджер свяжется с вами.
+        </p>
+        <form id="consultForm">
+          <div class="input-group">
+            <label for="consultName">Имя</label>
+            <input type="text" id="consultName" required />
+          </div>
+          <div class="input-group">
+            <label for="consultPhone">Телефон</label>
+            <input type="tel" id="consultPhone" required />
+          </div>
+          <button type="submit" class="primary-btn" style="height: 46px">
+            Заказать звонок
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Подвал -->
+    <footer class="footer">
+      <div class="container">
+        <div class="footer-bottom" style="border-top: none; padding-top: 0">
+          <div>© 2026 KoreaAuto. Личный кабинет пользователя.</div>
+          <div>Firebase Firestore + Authentication</div>
+        </div>
+      </div>
+    </footer>
+
+    <!-- Скрипты -->
+    <script type="module" src="js/main.js"></script>
+    <script type="module">
+      import { initProfilePage } from "./js/profile.js";
+      initProfilePage();
+    </script>
+  </body>
+</html>

@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/responsive.css">
+    <link rel="icon" href="logos/favicon.ico" type="image/x-icon">
+    <title>Детальная информация об автомобиле — KoreaAuto</title>
+</head>
+<body style="background: #ffffff;">
+
+    <!-- ШАПКА -->
+    <header class="header">
+        <div class="header-container">
+            <a href="index.html" class="logo">
+                <img id="headerlogo" src="logos/KoreaAuto_logo_darkblue.png" alt="KoreaAuto">
+            </a>
+
+            <button class="menu-button">
+                <span class="hamburger"><span></span><span></span><span></span></span>
+                <span>Меню</span>
+            </button>
+
+            <div class="search-box">
+                <input type="text" id="headerSearchInput" placeholder="Поиск марки, модели или VIN...">
+                <button class="search-icon-btn" id="headerSearchBtn">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                </button>
+            </div>
+
+            <div class="header-right">
+                <a href="favorites.html" class="nav-link" title="Избранное">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+                    <span class="badge-count fav-count-badge" style="display:none;">0</span>
+                </a>
+                <a href="tel:+77750074565" class="phone">+7 (775) 007-45-65</a>
+                <button class="consultation-button">Консультация</button>
+                <div id="headerAuthArea">
+                    <a href="login.html" class="login-button">Вход</a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Выдвижное мобильное меню -->
+    <div class="mobile-nav-overlay" id="mobileNavOverlay"></div>
+    <aside class="mobile-nav-drawer" id="mobileNavDrawer">
+        <div class="drawer-header">
+            <img src="logos/KoreaAuto_logo.svg" style="width: 140px;" alt="KoreaAuto">
+            <button class="drawer-close-btn" id="closeDrawerBtn">&times;</button>
+        </div>
+        <div class="drawer-links">
+            <a href="index.html">Главный каталог</a>
+            <a href="applications.html">Мои заявки</a>
+            <a href="favorites.html">Избранные авто</a>
+            <a href="profile.html">Личный кабинет</a>
+            <a href="admin.html">Админ-панель</a>
+        </div>
+    </aside>
+
+    <!-- КОНТЕНТ ДЕТАЛЬНОЙ СТРАНИЦЫ (СТИЛЬ WESTMOTORS) -->
+    <main class="container" style="padding-top: 14px; padding-bottom: 70px;">
+        
+        <!-- Хлебные крошки -->
+        <div class="breadcrumbs" id="breadcrumbsRow">
+            <a href="index.html">Главная</a>
+            <span>•</span>
+            <a href="index.html">Каталог</a>
+            <span>•</span>
+            <span id="bcBrand">Genesis</span>
+            <span>•</span>
+            <span id="bcModel">GV70</span>
+            <span>•</span>
+            <span id="bcId" style="color: #9ca3af;">942679561</span>
+        </div>
+
+        <div id="carDetailLoader" style="text-align: center; padding: 60px 0;">
+            <h3>Загрузка параметров автомобиля...</h3>
+        </div>
+
+        <div id="carDetailContent" style="display: none;">
+
+            <!-- Шапка автомобиля -->
+            <div class="wm-detail-header">
+                <div class="wm-detail-header-top">
+                    <div>
+                        <h1 class="wm-detail-main-title" id="detailMainTitle">Genesis GV70 2026 из Кореи в Казахстан</h1>
+                        <div class="wm-detail-main-price">
+                            <span id="detailMainPriceUSD">$ 38,325</span> <span>USD (Стоимость без доставки и растаможки)</span>
+                        </div>
+                        <div class="wm-detail-meta-bar">
+                            <span id="detailTrimTag" style="font-weight: 700; color: #111827;">2.5T Gasoline AWD</span>
+                            <span>•</span>
+                            <span>📅 <span id="detailDaysTag">2 дня в продаже</span></span>
+                            <span>•</span>
+                            <a href="#" id="detailSourceLink">🔗 Ссылка на источник</a>
+                        </div>
+                    </div>
+
+                    <div>
+                        <button class="wm-share-btn" id="shareBtn">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92c0-1.61-1.31-2.92-2.92-2.92z"/></svg>
+                            Поделиться
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Двухколоночный макет WestMotors -->
+            <div class="wm-detail-grid-layout">
+                
+                <!-- Левая широкая колонка -->
+                <div>
+                    
+                    <!-- Слайдер фотографий (1/20) -->
+                    <div class="wm-slider-card">
+                        <div class="wm-slider-main-wrap">
+                            <img id="wmSliderMainImg" src="" alt="Автомобиль" onerror="this.src='logos/KoreaAuto_logo.png'">
+                            <button class="wm-slider-nav-btn prev" id="sliderPrevBtn">&#10094;</button>
+                            <button class="wm-slider-nav-btn next" id="sliderNextBtn">&#10095;</button>
+                            <div class="wm-slider-counter" id="sliderCounter">1 / 10</div>
+                        </div>
+                        <div class="wm-thumbs-row" id="wmThumbsRow">
+                            <!-- Миниатюры -->
+                        </div>
+                    </div>
+
+                    <!-- Блок ОПИСАНИЕ -->
+                    <div class="wm-detail-specs-card">
+                        <h3>Описание</h3>
+                        <div class="wm-detail-specs-table">
+                            <div>
+                                <div class="wm-spec-row">
+                                    <span class="name">Комплектация:</span>
+                                    <span class="val" id="specTrimSummary">Бензин • 2.5 • Автомат • 5-местн.</span>
+                                </div>
+                                <div class="wm-spec-row">
+                                    <span class="name">Пробег:</span>
+                                    <span class="val" id="specMileageVal">4 417 км</span>
+                                </div>
+                                <div class="wm-spec-row">
+                                    <span class="name">Тип двигателя:</span>
+                                    <span class="val" id="specFuelVal">Бензин</span>
+                                </div>
+                                <div class="wm-spec-row">
+                                    <span class="name">Мест:</span>
+                                    <span class="val" id="specSeatsVal">5</span>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="wm-spec-row">
+                                    <span class="name">Состояние:</span>
+                                    <span class="val" style="color: #16a34a; font-weight:700;">✔️ <span id="specConditionVal">Б/у</span></span>
+                                </div>
+                                <div class="wm-spec-row">
+                                    <span class="name">Год выпуска:</span>
+                                    <span class="val" id="specYearVal">2026</span>
+                                </div>
+                                <div class="wm-spec-row">
+                                    <span class="name">Локация:</span>
+                                    <span class="val" id="specLocationVal">Местная сборка • Кёнгидо</span>
+                                </div>
+                                <div class="wm-spec-row">
+                                    <span class="name">Заказать:</span>
+                                    <span class="val"><a href="#history" class="wm-report-btn">📷 Отчёт по авто</a></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="wm-detail-btns-row">
+                            <button class="wm-btn-calc" id="btnMainCalc">Рассчитать стоимость</button>
+                            <button class="wm-btn-consult consultation-button">Получить консультацию</button>
+                        </div>
+                    </div>
+
+                    <!-- Блок История автомобиля -->
+                    <div class="wm-history-card" id="history">
+                        <h3>История автомобиля</h3>
+                        <div class="wm-history-status-green">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+                            <span>Происшествий и кузовных работ не зафиксировано</span>
+                        </div>
+                        <div class="wm-full-report-box" id="openFullReportBtn">
+                            <div class="title">Полный отчёт по автомобилю</div>
+                            <div class="desc">Страховая история, кузовные работы, толщинометрия и детальные фото с осмотра в Сеуле</div>
+                        </div>
+                    </div>
+
+                    <!-- Блок Комплектации -->
+                    <div class="wm-trims-card">
+                        <h3 id="trimsTitle">Комплектации 2026 Genesis GV70</h3>
+                        <div class="sub">Стоимость авто указана в Корее и не включает логистику и растаможку</div>
+                        
+                        <div class="wm-trim-pill">
+                            <div class="wm-trim-pill-header">
+                                <span style="font-weight: 800; font-size: 16px;" id="trimRowName">2.5T Gasoline AWD</span>
+                                <div style="display: flex; align-items: center; gap: 14px;">
+                                    <span style="font-size: 14px; font-weight: 700; color: #111827;" id="trimRowPrice">от 17 437 807 ₸ ~ $38 325</span>
+                                    <button class="wm-btn-want" id="btnTrimWant">Хочу такую</button>
+                                </div>
+                            </div>
+                            <div class="wm-trim-specs-row">
+                                <div class="item"><div class="lbl">Мощность:</div><div class="val" id="specPower">304.0 л.с.</div></div>
+                                <div class="item"><div class="lbl">Привод:</div><div class="val" id="specDrive">4WD (Полный)</div></div>
+                                <div class="item"><div class="lbl">КПП:</div><div class="val" id="specTrans">Автомат (AT)</div></div>
+                                <div class="item"><div class="lbl">Пробег:</div><div class="val" id="specMileageTrim">4 417 км</div></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Интерактивные отзывы и оценки (Real-Time onSnapshot) -->
+                    <div class="wm-detail-specs-card">
+                        <h3 style="display:flex; justify-content:space-between; align-items:center;">
+                            <span>Отзывы и вопросы покупателей</span>
+                            <span id="reviewsCountBadge" style="font-size: 14px; color: #2563eb; text-transform: none;">0 отзывов</span>
+                        </h3>
+
+                        <!-- Форма добавления отзыва -->
+                        <div class="add-review-box" style="margin-bottom: 20px;">
+                            <div class="stars-picker" id="starsPicker">
+                                <span data-star="1">★</span>
+                                <span data-star="2">★</span>
+                                <span data-star="3">★</span>
+                                <span data-star="4">★</span>
+                                <span data-star="5" class="active">★</span>
+                            </div>
+                            <textarea id="newReviewComment" class="filter-input" style="height:74px; margin-bottom:12px;" placeholder="Задайте вопрос по этой модели или оставьте отзыв..."></textarea>
+                            <button class="primary-btn" id="submitReviewBtn" style="height:40px; width:auto; padding:0 22px; font-size:14px; background:#2563eb;">Опубликовать</button>
+                        </div>
+
+                        <!-- Список отзывов -->
+                        <div class="reviews-container" id="carReviewsContainer"></div>
+                    </div>
+
+                </div>
+
+                <!-- Правая колонка: Виджет-калькулятор (Sticky Widget) -->
+                <aside class="wm-sticky-widget">
+                    <div class="wm-widget-korea-price">
+                        <div class="lbl">ЦЕНА В КОРЕЕ</div>
+                        <div class="krw" id="stickyKRW">₩50 900 000</div>
+                        <div class="converted" id="stickyConverted">≈ $38 325 ≈ 17 437 807 ₸</div>
+                    </div>
+
+                    <div class="wm-widget-market-pill">
+                        <div style="font-size: 20px;">📊</div>
+                        <div>
+                            <div style="font-size: 11px; color: #1e40af;">Рыночная цена</div>
+                            <div class="val" id="stickyMarket">$40 283</div>
+                        </div>
+                    </div>
+
+                    <div class="wm-widget-price-label">Стоимость авто:</div>
+                    <div class="wm-widget-huge-price" id="stickyUSD">$38 325</div>
+
+                    <button class="wm-widget-submit-btn" id="stickyOrderBtn">
+                        Рассчитать стоимость
+                    </button>
+
+                    <ul class="wm-widget-checklist">
+                        <li>
+                            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+                            <span>Официальный договор и гарантия</span>
+                        </li>
+                        <li>
+                            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+                            <span>Прозрачный расчет всех расходов</span>
+                        </li>
+                        <li>
+                            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+                            <span>Персональный менеджер 24/7</span>
+                        </li>
+                        <li>
+                            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+                            <span>Доставка под ключ от 2 месяцев</span>
+                        </li>
+                    </ul>
+
+                    <button class="wm-widget-manager-btn consultation-button">
+                        Связаться с менеджером
+                    </button>
+                </aside>
+
+            </div>
+
+        </div>
+
+    </main>
+
+    <!-- МОДАЛЬНОЕ ОКНО: ЗАЯВКА НА АВТО -->
+    <div class="modal-overlay" id="orderModal">
+        <div class="modal-card">
+            <button class="modal-close-btn">&times;</button>
+            <h3 class="modal-title">Расчет стоимости авто под ключ</h3>
+            <p class="modal-desc">Оставьте заявку, менеджер подготовит детальный расчет доставки из Кореи и растаможки.</p>
+            
+            <div style="background:#f8fafc; border-radius:6px; padding:12px; margin-bottom:20px; border:1px solid #edf2f7;">
+                <h4 id="modalCarTitle" style="color:#1a202c; font-size:16px; margin-bottom:4px;">-</h4>
+                <div id="modalCarPrice" style="color:#2563eb; font-weight:800; font-size:18px;">-</div>
+            </div>
+
+            <form id="orderModalForm">
+                <input type="hidden" id="modalCarId">
+                <input type="hidden" id="modalCarImage">
+
+                <div class="input-group">
+                    <label for="modalUserName">Ваше имя</label>
+                    <input type="text" id="modalUserName" required placeholder="Иван">
+                </div>
+
+                <div class="input-group">
+                    <label for="modalUserPhone">Телефон</label>
+                    <input type="tel" id="modalUserPhone" required placeholder="+7 (___) ___-__-__">
+                </div>
+
+                <div class="input-group">
+                    <label for="modalUserComment">Город доставки и пожелания</label>
+                    <textarea id="modalUserComment" placeholder="Алматы / Астана / Москва, комплектация..."></textarea>
+                </div>
+
+                <div style="display:flex; gap:12px; margin-top:16px;">
+                    <button type="button" class="secondary-btn modal-cancel-btn">Отмена</button>
+                    <button type="submit" class="primary-btn" style="height:44px; background:#2563eb;">Получить расчет</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- МОДАЛЬНОЕ ОКНО: КОНСУЛЬТАЦИЯ -->
+    <div class="modal-overlay" id="consultModal">
+        <div class="modal-card">
+            <button class="modal-close-btn">&times;</button>
+            <h3 class="modal-title">Связь с менеджером</h3>
+            <p class="modal-desc">Специалист по Корее ответит на все вопросы по растаможке и аукционам.</p>
+            <form id="consultForm">
+                <div class="input-group">
+                    <label for="consultName">Ваше имя</label>
+                    <input type="text" id="consultName" required placeholder="Иван">
+                </div>
+                <div class="input-group">
+                    <label for="consultPhone">Телефон</label>
+                    <input type="tel" id="consultPhone" required placeholder="+7 (___) ___-__-__">
+                </div>
+                <div class="input-group">
+                    <label for="consultNote">Комментарий</label>
+                    <textarea id="consultNote" placeholder="Ваш вопрос..."></textarea>
+                </div>
+                <button type="submit" class="primary-btn" style="height:46px; background:#2563eb;">Заказать звонок</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Подвал -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-bottom" style="border-top:none; padding-top:0;">
+                <div>© 2026 KoreaAuto. Прямые поставки из Южной Кореи.</div>
+                <div>Firebase Firestore + Authentication</div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- СКРИПТЫ -->
+    <script type="module" src="js/main.js"></script>
+    <script type="module">
+        import { fetchCarById, subscribeToReviews, addReview, deleteReview, formatUSD, formatKRW, formatKZT } from "./js/cars.js";
+        import { formatDate, showToast, getCurrentUserWithProfile, openModal } from "./js/utils.js";
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const carId = urlParams.get("id");
+
+        if (!carId) {
+            window.location.href = "index.html";
+        }
+
+        let currentCar = null;
+        let sliderImages = [];
+        let currentSlideIdx = 0;
+        let selectedRating = 5;
+
+        async function initPage() {
+            currentCar = await fetchCarById(carId);
+            if (!currentCar) {
+                document.getElementById("carDetailLoader").innerHTML = "<h3>Автомобиль не найден</h3><p><a href='index.html'>Вернуться в каталог</a></p>";
+                return;
+            }
+
+            document.getElementById("carDetailLoader").style.display = "none";
+            document.getElementById("carDetailContent").style.display = "block";
+
+            // Title & Meta
+            const title = `${currentCar.year} ${currentCar.brand} ${currentCar.model}`;
+            document.title = `${title} из Кореи — KoreaAuto`;
+
+            const priceUSD = currentCar.priceUSD || (currentCar.price > 100000 ? Math.round(currentCar.price / 90) : (currentCar.price || 38325));
+            const priceKRW = currentCar.priceKRW || Math.round(priceUSD * 1330);
+            const priceKZT = currentCar.priceKZT || Math.round(priceUSD * 455);
+            const marketUSD = currentCar.marketPriceUSD || Math.round(priceUSD * 1.05 + 1958);
+
+            document.getElementById("bcBrand").textContent = currentCar.brand;
+            document.getElementById("bcModel").textContent = currentCar.model;
+            document.getElementById("bcId").textContent = currentCar.id.slice(0, 9);
+
+            document.getElementById("detailMainTitle").textContent = `${currentCar.brand} ${currentCar.model} ${currentCar.year} из Кореи в Казахстан`;
+            document.getElementById("detailMainPriceUSD").textContent = formatUSD(priceUSD);
+            document.getElementById("detailTrimTag").textContent = currentCar.trim || (currentCar.engine || "2.5T Gasoline AWD");
+            document.getElementById("detailDaysTag").textContent = currentCar.daysOnSale || "2 дня в продаже";
+
+            // Specs
+            const displacement = currentCar.displacement || (currentCar.engine ? currentCar.engine.split(" ")[0] : "2.5 L");
+            const trans = currentCar.transmission || "Автомат (AT)";
+            const fuel = currentCar.fuel || "Бензин";
+            const seats = currentCar.seats || 5;
+
+            document.getElementById("specTrimSummary").textContent = `${fuel} • ${displacement} • ${trans} • ${seats}-местн.`;
+            document.getElementById("specMileageVal").textContent = currentCar.mileage ? `${currentCar.mileage.toLocaleString()} км` : "4 417 км";
+            document.getElementById("specFuelVal").textContent = fuel;
+            document.getElementById("specSeatsVal").textContent = seats;
+            document.getElementById("specConditionVal").textContent = currentCar.condition || "Б/у";
+            document.getElementById("specYearVal").textContent = currentCar.year;
+            document.getElementById("specLocationVal").textContent = currentCar.location || "Местная сборка • Кёнгидо";
+
+            // Trims section
+            document.getElementById("trimsTitle").textContent = `Комплектации ${currentCar.year} ${currentCar.brand} ${currentCar.model}`;
+            document.getElementById("trimRowName").textContent = currentCar.trim || "2.5T Gasoline AWD";
+            document.getElementById("trimRowPrice").textContent = `от ${formatKZT(priceKZT)} ~ ${formatUSD(priceUSD)}`;
+            document.getElementById("specPower").textContent = currentCar.power || "304.0 л.с.";
+            document.getElementById("specDrive").textContent = currentCar.drive || "4WD (Полный)";
+            document.getElementById("specTrans").textContent = trans;
+            document.getElementById("specMileageTrim").textContent = currentCar.mileage ? `${currentCar.mileage.toLocaleString()} км` : "4 417 км";
+
+            // Sticky calculator widget
+            document.getElementById("stickyKRW").textContent = formatKRW(priceKRW);
+            document.getElementById("stickyConverted").textContent = `≈ ${formatUSD(priceUSD)} ≈ ${formatKZT(priceKZT)}`;
+            document.getElementById("stickyMarket").textContent = formatUSD(marketUSD);
+            document.getElementById("stickyUSD").textContent = formatUSD(priceUSD);
+
+            // Images & Slider Setup (1/20 style)
+            const mainImg = currentCar.imageUrl || "logos/KoreaAuto_logo.png";
+            sliderImages = [mainImg];
+            if (currentCar.images && Array.isArray(currentCar.images)) {
+                sliderImages.push(...currentCar.images);
+            } else {
+                // Realistic additional angles
+                sliderImages.push(
+                    "https://images.unsplash.com/photo-1549399542-7e3f8b79c341?w=800&q=80",
+                    "https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=800&q=80",
+                    "https://images.unsplash.com/photo-1552519507-da3b142c6e3d?w=800&q=80"
+                );
+            }
+
+            renderSlider();
+
+            // Order Modal handlers
+            const openOrder = async () => {
+                const { user, profile } = await getCurrentUserWithProfile();
+                document.getElementById("modalCarTitle").textContent = `${currentCar.year} ${currentCar.brand} ${currentCar.model}`;
+                document.getElementById("modalCarPrice").textContent = formatUSD(priceUSD) + ` (${formatKZT(priceKZT)})`;
+                document.getElementById("modalCarId").value = currentCar.id;
+                document.getElementById("modalCarImage").value = mainImg;
+                if (user) {
+                    document.getElementById("modalUserName").value = profile?.displayName || user.displayName || "";
+                    document.getElementById("modalUserPhone").value = profile?.phone || "";
+                }
+                openModal("orderModal");
+            };
+
+            document.getElementById("btnMainCalc").addEventListener("click", openOrder);
+            document.getElementById("stickyOrderBtn").addEventListener("click", openOrder);
+            document.getElementById("btnTrimWant").addEventListener("click", openOrder);
+
+            // Share button
+            document.getElementById("shareBtn").addEventListener("click", () => {
+                if (navigator.clipboard) {
+                    navigator.clipboard.writeText(window.location.href);
+                    showToast("Ссылка на автомобиль скопирована в буфер обмена!", "success");
+                }
+            });
+
+            // Report button
+            document.getElementById("openFullReportBtn").addEventListener("click", () => {
+                showToast("Полный отчет осмотра Encar с толщинометрией открыт!", "info");
+            });
+
+            // Setup Real-time reviews
+            setupReviews(currentCar.id);
+        }
+
+        // Slider logic
+        function renderSlider() {
+            const mainImgEl = document.getElementById("wmSliderMainImg");
+            const counterEl = document.getElementById("sliderCounter");
+            const thumbsRow = document.getElementById("wmThumbsRow");
+
+            const updateView = (idx) => {
+                currentSlideIdx = idx;
+                mainImgEl.src = sliderImages[currentSlideIdx];
+                counterEl.textContent = `${currentSlideIdx + 1} / ${sliderImages.length}`;
+
+                thumbsRow.querySelectorAll(".wm-thumb-item").forEach((thumb, i) => {
+                    thumb.classList.toggle("active", i === currentSlideIdx);
+                });
+            };
+
+            thumbsRow.innerHTML = sliderImages.map((src, i) => `
+                <div class="wm-thumb-item ${i === 0 ? 'active' : ''}" data-idx="${i}">
+                    <img src="${src}" alt="миниатюра">
+                </div>
+            `).join("");
+
+            thumbsRow.querySelectorAll(".wm-thumb-item").forEach(item => {
+                item.addEventListener("click", () => {
+                    updateView(Number(item.getAttribute("data-idx")));
+                });
+            });
+
+            document.getElementById("sliderPrevBtn").addEventListener("click", () => {
+                const nextIdx = (currentSlideIdx - 1 + sliderImages.length) % sliderImages.length;
+                updateView(nextIdx);
+            });
+
+            document.getElementById("sliderNextBtn").addEventListener("click", () => {
+                const nextIdx = (currentSlideIdx + 1) % sliderImages.length;
+                updateView(nextIdx);
+            });
+
+            updateView(0);
+        }
+
+        // Reviews
+        function setupReviews(cId) {
+            const container = document.getElementById("carReviewsContainer");
+            const badge = document.getElementById("reviewsCountBadge");
+
+            subscribeToReviews(cId, async (reviews) => {
+                const { user, profile } = await getCurrentUserWithProfile();
+                if (badge) badge.textContent = `${reviews.length} отзывов`;
+
+                if (reviews.length === 0) {
+                    container.innerHTML = "<p style='color:#718096;'>Пока нет отзывов по данному автомобилю.</p>";
+                    return;
+                }
+
+                container.innerHTML = reviews.map(r => {
+                    const isOwner = user && (user.uid === r.userId || profile?.role === "admin");
+                    return `
+                        <div class="review-card">
+                            <div class="review-card-header">
+                                <div>
+                                    <span class="reviewer-name">${r.userName || 'Пользователь'}</span>
+                                    <span class="review-stars">${"★".repeat(r.rating)}${"☆".repeat(5 - r.rating)}</span>
+                                </div>
+                                <span class="review-date">${formatDate(r.createdAt)}</span>
+                            </div>
+                            <p class="review-text">${r.comment}</p>
+                            ${isOwner ? `
+                                <div style="text-align:right; margin-top:8px;">
+                                    <button class="btn-sm-danger delete-rev-btn" data-id="${r.id}">Удалить отзыв</button>
+                                </div>
+                            ` : ''}
+                        </div>
+                    `;
+                }).join("");
+
+                container.querySelectorAll(".delete-rev-btn").forEach(btn => {
+                    btn.addEventListener("click", async () => {
+                        if (confirm("Удалить отзыв?")) {
+                            await deleteReview(btn.getAttribute("data-id"));
+                        }
+                    });
+                });
+            });
+
+            // Star rating
+            const starSpans = document.querySelectorAll("#starsPicker span");
+            starSpans.forEach(s => {
+                s.addEventListener("click", () => {
+                    selectedRating = Number(s.getAttribute("data-star"));
+                    starSpans.forEach(star => {
+                        const val = Number(star.getAttribute("data-star"));
+                        star.classList.toggle("active", val <= selectedRating);
+                    });
+                });
+            });
+
+            // Submit review
+            document.getElementById("submitReviewBtn").addEventListener("click", async () => {
+                const { user, profile } = await getCurrentUserWithProfile();
+                if (!user) {
+                    showToast("Войдите в аккаунт, чтобы оставить отзыв.", "error");
+                    return;
+                }
+                const commentInput = document.getElementById("newReviewComment");
+                const comment = commentInput.value.trim();
+                if (!comment) {
+                    showToast("Пожалуйста, напишите текст сообщения.", "error");
+                    return;
+                }
+
+                const ok = await addReview(cId, { rating: selectedRating, comment, user, profile });
+                if (ok) commentInput.value = "";
+            });
+        }
+
+        initPage();
+    </script>
+</body>
+</html>

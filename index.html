@@ -1,0 +1,474 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="css/style.css" />
+    <link rel="stylesheet" href="css/responsive.css" />
+    <link rel="icon" href="logos/favicon.ico" type="image/x-icon" />
+    <title>KoreaAuto — Доставка и продажа автомобилей из Южной Кореи</title>
+  </head>
+  <body>
+    <!-- ШАПКА САЙТА -->
+    <header class="header">
+      <div class="header-container">
+        <!-- Логотип -->
+        <a href="index.html" class="logo">
+          <img
+            id="headerlogo"
+            src="logos/KoreaAuto_logo_darkblue.png"
+            alt="KoreaAuto Логотип"
+          />
+        </a>
+
+        <!-- Кнопка мобильного меню -->
+        <button class="menu-button" aria-label="Открыть меню">
+          <span class="hamburger">
+            <span></span>
+            <span></span>
+            <span></span>
+          </span>
+          <span>Меню</span>
+        </button>
+
+        <!-- Поиск -->
+        <div class="search-box">
+          <input
+            type="text"
+            id="headerSearchInput"
+            placeholder="Поиск марки, модели или характеристик..."
+          />
+          <button
+            class="search-icon-btn"
+            id="headerSearchBtn"
+            aria-label="Поиск"
+          >
+            <svg
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+          </button>
+        </div>
+
+        <!-- Правая часть -->
+        <div class="header-right">
+          <a href="favorites.html" class="nav-link" title="Избранное">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+              <path
+                d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"
+              />
+            </svg>
+            <span class="badge-count fav-count-badge" style="display: none"
+              >0</span
+            >
+          </a>
+
+          <a href="tel:+77750074565" class="phone"> +7 (775) 007-45-65 </a>
+
+          <button class="consultation-button">Консультация</button>
+
+          <!-- Динамическая зона пользователя (Вход или имя профиля) -->
+          <div id="headerAuthArea">
+            <a href="login.html" class="login-button"> Вход </a>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Выдвижное мобильное меню -->
+    <div class="mobile-nav-overlay" id="mobileNavOverlay"></div>
+    <aside class="mobile-nav-drawer" id="mobileNavDrawer">
+      <div class="drawer-header">
+        <img
+          src="logos/KoreaAuto_logo_darkblue.png"
+          style="width: 140px"
+          alt="KoreaAuto"
+        />
+        <button class="drawer-close-btn" id="closeDrawerBtn">&times;</button>
+      </div>
+      <div class="drawer-links">
+        <a href="index.html">Главный каталог</a>
+        <a href="applications.html">Мои заявки</a>
+        <a href="favorites.html">Избранные авто</a>
+        <a href="profile.html">Личный кабинет</a>
+        <a href="admin.html">Админ-панель</a>
+        <hr
+          style="border: none; border-top: 1px solid #edf2f7; margin: 10px 0"
+        />
+        <a href="tel:+77750074565" style="color: #2859a8">+7 (775) 007-45-65</a>
+      </div>
+    </aside>
+
+    <!-- HERO БАННЕР -->
+    <section class="hero-section">
+      <div class="container">
+        <div class="hero-content">
+          <span class="hero-badge"
+            >Прямые поставки с аукционов Encar и Glovis</span
+          >
+          <h1 class="hero-title">
+            Автомобили из Южной Кореи под ключ с гарантией
+          </h1>
+          <p class="hero-subtitle">
+            Честный пробег, прозрачная история, экономия до 35% по сравнению с
+            локальным рынком. Доставка и таможенное оформление.
+          </p>
+          <div class="hero-stats">
+            <div class="stat-item">
+              <div class="num">1 250+</div>
+              <div class="label">Доставлено автомобилей</div>
+            </div>
+            <div class="stat-item">
+              <div class="num">от 18 дней</div>
+              <div class="label">Срок доставки</div>
+            </div>
+            <div class="stat-item">
+              <div class="num">100%</div>
+              <div class="label">Юридическая чистота</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ОСНОВНОЙ КАТАЛОГ С ФИЛЬТРАМИ И ПАГИНАЦИЕЙ -->
+    <main class="catalog-section">
+      <div class="container">
+        <div class="catalog-layout">
+          <!-- Боковая панель фильтров -->
+          <aside class="filter-card">
+            <div class="filter-header">
+              <h2 class="filter-title">Параметры авто</h2>
+              <button class="reset-filter-btn" id="resetFiltersBtn">
+                Сбросить
+              </button>
+            </div>
+
+            <!-- Марка -->
+            <div class="filter-group">
+              <label class="filter-label" for="filterBrand">Марка</label>
+              <select id="filterBrand" class="filter-select">
+                <option value="all">Все марки</option>
+                <option value="Hyundai">Hyundai</option>
+                <option value="Kia">Kia</option>
+                <option value="Genesis">Genesis</option>
+                <option value="KG Mobility (SsangYong)">KG Mobility</option>
+                <option value="Renault Korea">Renault Korea</option>
+              </select>
+            </div>
+
+            <!-- Топливо -->
+            <div class="filter-group">
+              <label class="filter-label" for="filterFuel"
+                >Двигатель / Топливо</label
+              >
+              <select id="filterFuel" class="filter-select">
+                <option value="all">Любой тип</option>
+                <option value="Бензин">Бензин</option>
+                <option value="Дизель">Дизель</option>
+                <option value="Гибрид">Гибрид</option>
+                <option value="Электро">Электро</option>
+              </select>
+            </div>
+
+            <!-- Цена (руб.) -->
+            <div class="filter-group">
+              <label class="filter-label">Цена, ₽</label>
+              <div class="range-row">
+                <input
+                  type="number"
+                  id="filterMinPrice"
+                  class="filter-input"
+                  placeholder="От"
+                />
+                <input
+                  type="number"
+                  id="filterMaxPrice"
+                  class="filter-input"
+                  placeholder="До"
+                />
+              </div>
+            </div>
+
+            <!-- Год выпуска -->
+            <div class="filter-group">
+              <label class="filter-label">Год выпуска от</label>
+              <input
+                type="number"
+                id="filterMinYear"
+                class="filter-input"
+                placeholder="Например: 2021"
+                min="2015"
+                max="2026"
+              />
+            </div>
+          </aside>
+
+          <!-- Основная витрина -->
+          <div class="catalog-main">
+            <div class="catalog-main-header">
+              <div class="catalog-count-text">
+                Найдено предложений: <strong id="catalogCount">0</strong>
+              </div>
+              <div class="sort-wrapper">
+                <span class="sort-label">Сортировка:</span>
+                <select id="sortSelect" class="sort-select">
+                  <option value="createdAt_desc">
+                    Сначала новые поступления
+                  </option>
+                  <option value="price_asc">Сначала недорогие</option>
+                  <option value="price_desc">Сначала премиальные</option>
+                  <option value="year_desc">Сначала свежие по году</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Сетка автомобилей -->
+            <div class="cars-grid" id="carsGrid">
+              <!-- Карточки рендерятся через js/filters.js -->
+            </div>
+
+            <!-- Пустое состояние -->
+            <div
+              class="empty-state"
+              id="emptyCatalogState"
+              style="display: none"
+            >
+              <div class="empty-state-icon">🚗</div>
+              <h3>Автомобили не найдены</h3>
+              <p>
+                Попробуйте смягчить параметры фильтра или выполнить поиск по
+                другому названию.
+              </p>
+            </div>
+
+            <!-- Кнопка пагинации «Показать еще» (Требование ТЗ: 10 баллов) -->
+            <div class="pagination-wrapper">
+              <button
+                class="load-more-btn"
+                id="loadMoreBtn"
+                style="display: none"
+              >
+                <span>Показать еще автомобили</span>
+                <svg
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  fill="currentColor"
+                >
+                  <path
+                    d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"
+                  />
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- МОДАЛЬНОЕ ОКНО: БЫСТРЫЙ ЗАКАЗ АВТО -->
+    <div class="modal-overlay" id="orderModal">
+      <div class="modal-card">
+        <button class="modal-close-btn">&times;</button>
+        <h3 class="modal-title">Заявка на автомобиль</h3>
+        <p class="modal-desc">
+          Оставьте ваши контакты, и мы забронируем выбранное авто и рассчитаем
+          полную стоимость под ключ.
+        </p>
+
+        <div
+          style="
+            background: #f8fafc;
+            border-radius: 6px;
+            padding: 12px;
+            margin-bottom: 20px;
+            border: 1px solid #edf2f7;
+          "
+        >
+          <h4
+            id="modalCarTitle"
+            style="color: #1a202c; font-size: 16px; margin-bottom: 4px"
+          >
+            -
+          </h4>
+          <div
+            id="modalCarPrice"
+            style="color: #e52b38; font-weight: 800; font-size: 18px"
+          >
+            -
+          </div>
+        </div>
+
+        <form id="orderModalForm">
+          <input type="hidden" id="modalCarId" />
+          <input type="hidden" id="modalCarImage" />
+
+          <div class="input-group">
+            <label for="modalUserName">Ваше имя</label>
+            <input
+              type="text"
+              id="modalUserName"
+              required
+              placeholder="Иван Иванов"
+            />
+          </div>
+
+          <div class="input-group">
+            <label for="modalUserPhone">Телефон</label>
+            <input
+              type="tel"
+              id="modalUserPhone"
+              required
+              placeholder="+7 (999) 000-00-00"
+            />
+          </div>
+
+          <div class="input-group">
+            <label for="modalUserComment">Пожелания / комментарий</label>
+            <textarea
+              id="modalUserComment"
+              placeholder="Желаемый цвет, комплектация, город доставки..."
+            ></textarea>
+          </div>
+
+          <div style="display: flex; gap: 12px; margin-top: 16px">
+            <button type="button" class="secondary-btn modal-cancel-btn">
+              Отмена
+            </button>
+            <button
+              type="submit"
+              class="primary-btn"
+              style="height: 44px; font-size: 15px"
+            >
+              Отправить заявку
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- МОДАЛЬНОЕ ОКНО: КОНСУЛЬТАЦИЯ -->
+    <div class="modal-overlay" id="consultModal">
+      <div class="modal-card">
+        <button class="modal-close-btn">&times;</button>
+        <h3 class="modal-title">Бесплатная консультация</h3>
+        <p class="modal-desc">
+          Наш специалист свяжется с вами в течение 10 минут и ответит на все
+          вопросы по заказу авто из Южной Кореи.
+        </p>
+
+        <form id="consultForm">
+          <div class="input-group">
+            <label for="consultName">Ваше имя</label>
+            <input type="text" id="consultName" required placeholder="Иван" />
+          </div>
+          <div class="input-group">
+            <label for="consultPhone">Телефон</label>
+            <input
+              type="tel"
+              id="consultPhone"
+              required
+              placeholder="+7 (___) ___-__-__"
+            />
+          </div>
+          <div class="input-group">
+            <label for="consultNote">Какой автомобиль вас интересует?</label>
+            <textarea
+              id="consultNote"
+              placeholder="Например: Hyundai Santa Fe от 2022 года дизель"
+            ></textarea>
+          </div>
+          <button type="submit" class="primary-btn" style="height: 48px">
+            Заказать звонок
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <!-- ПОДВАЛ -->
+    <footer class="footer">
+      <div class="container">
+        <div class="footer-grid">
+          <div class="footer-col">
+            <img
+              src="logos/KoreaAuto_logo.png"
+              style="width: 170px; margin-bottom: 16px"
+              alt="KoreaAuto"
+            />
+            <p style="font-size: 14px; line-height: 1.6; color: #a0aec0">
+              Официальный импорт легковых автомобилей из Южной Кореи. Полное
+              сопровождение сделки, таможенное оформление и доставка до вашего
+              города.
+            </p>
+          </div>
+          <div class="footer-col">
+            <h4>Навигация</h4>
+            <ul>
+              <li><a href="index.html">Каталог автомобилей</a></li>
+              <li><a href="favorites.html">Избранные авто</a></li>
+              <li><a href="applications.html">Мои заказы</a></li>
+              <li><a href="profile.html">Личный кабинет</a></li>
+            </ul>
+          </div>
+          <div class="footer-col">
+            <h4>Популярные марки</h4>
+            <ul>
+              <li><a href="index.html?q=Hyundai">Hyundai из Кореи</a></li>
+              <li><a href="index.html?q=Kia">Kia из Кореи</a></li>
+              <li><a href="index.html?q=Genesis">Genesis из Кореи</a></li>
+              <li><a href="index.html?q=Carnival">Kia Carnival 9-мест</a></li>
+            </ul>
+          </div>
+          <div class="footer-col">
+            <h4>Контакты</h4>
+            <ul>
+              <li>
+                <a
+                  href="tel:+77750074565"
+                  style="color: #ffffff; font-weight: 700"
+                  >+7 (775) 007-45-65</a
+                >
+              </li>
+              <li><span>г. Алматы / г. Москва, логистический хаб</span></li>
+              <li><span>Ежедневно: с 09:00 до 21:00</span></li>
+              <li>
+                <a
+                  href="admin.html"
+                  style="
+                    color: #e52b38;
+                    font-size: 12px;
+                    margin-top: 8px;
+                    display: inline-block;
+                  "
+                  >Вход для администраторов</a
+                >
+              </li>
+            </ul>
+          </div>
+        </div>
+        <div class="footer-bottom">
+          <div>
+            © 2026 KoreaAuto. Все права защищены. Учебный проект по облачным
+            базам данных Firebase.
+          </div>
+          <div>Firebase Firestore + Authentication</div>
+        </div>
+      </div>
+    </footer>
+
+    <!-- СКРИПТЫ -->
+    <script type="module" src="js/main.js"></script>
+    <script type="module">
+      import { CatalogManager } from "./js/filters.js";
+      window.catalogManager = new CatalogManager();
+    </script>
+  </body>
+</html>

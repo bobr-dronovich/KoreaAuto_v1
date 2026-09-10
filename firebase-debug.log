@@ -1,0 +1,12 @@
+[debug] [2026-09-10T10:22:27.374Z] ----------------------------------------------------------------------
+[debug] [2026-09-10T10:22:27.382Z] Command:       /Users/valentinkondratev/.nvm/versions/node/v24.20.0/bin/node /Users/valentinkondratev/.nvm/versions/node/v24.20.0/bin/firebase login
+[debug] [2026-09-10T10:22:27.382Z] CLI Version:   15.30.0
+[debug] [2026-09-10T10:22:27.382Z] Platform:      darwin
+[debug] [2026-09-10T10:22:27.382Z] Node Version:  v24.20.0
+[debug] [2026-09-10T10:22:27.382Z] Detected Agent: unknown
+[debug] [2026-09-10T10:22:27.382Z] Time:          Thu Sep 10 2026 15:22:27 GMT+0500 (Kazakhstan Time)
+[debug] [2026-09-10T10:22:27.382Z] ----------------------------------------------------------------------
+[debug] 
+[info] i  The Firebase CLI’s MCP server feature can optionally make use of Gemini in Firebase. Learn more about Gemini in Firebase and how it uses your data: https://firebase.google.com/docs/gemini-in-firebase#how-gemini-in-firebase-uses-your-data 
+[info] 
+[info] i  Firebase optionally collects CLI and Emulator Suite usage and error reporting information to help improve our products. Data is collected in accordance with Google's privacy policy (https://policies.google.com/privacy) and is not used to identify you. 

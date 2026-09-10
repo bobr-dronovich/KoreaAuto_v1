@@ -1,0 +1,59 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Проверка: авторизован ли пользователь в системе
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    // Проверка: является ли пользователь владельцем документа
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    // 1. Коллекция пользователей (users)
+    match /users/{userId} {
+      // Авторизованный пользователь может читать профили
+      allow read: if isAuthenticated();
+      // Владелец может создавать и обновлять свои данные
+      allow create, update: if isOwner(userId);
+      allow delete: if isAuthenticated();
+    }
+
+    // 2. Каталог автомобилей (cars)
+    match /cars/{carId} {
+      // Любой посетитель (даже гость) может просматривать каталог
+      allow read: if true;
+      // Авторизованный администратор может добавлять, изменять и удалять авто
+      allow create, update, delete: if isAuthenticated();
+    }
+
+    // 3. Заявки и заказы (applications)
+    match /applications/{appId} {
+      // Чтение заявок авторизованными пользователями
+      allow read: if isAuthenticated();
+      // Создание заявки клиентом
+      allow create: if isAuthenticated() && request.resource.data.userId == request.auth.uid;
+      // Обновление и удаление заявок
+      allow update, delete: if isAuthenticated();
+    }
+
+    // 4. Отзывы и комментарии (reviews)
+    match /reviews/{reviewId} {
+      // Отзывы видны всем посетителям
+      allow read: if true;
+      // Добавление отзыва авторизованным пользователем
+      allow create: if isAuthenticated() && request.resource.data.userId == request.auth.uid;
+      // Редактирование и модерация отзывов
+      allow update, delete: if isAuthenticated();
+    }
+
+    // 5. Избранное (favorites)
+    match /favorites/{favId} {
+      allow read, write: if isAuthenticated();
+    }
+
+  }
+}

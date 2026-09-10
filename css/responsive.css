@@ -1,0 +1,113 @@
+/* ==========================================================================
+   KoreaAuto_v1 - Responsive Stylesheet (Updated for WestMotors Layouts)
+   ========================================================================== */
+
+/* 1100px */
+@media (max-width: 1100px) {
+    .header-container {
+        gap: 15px;
+        padding: 0 20px;
+    }
+    .header-right { gap: 10px; }
+    .phone { font-size: 13px; }
+    .search-box { max-width: 380px; }
+    .catalog-layout { grid-template-columns: 240px 1fr; gap: 20px; }
+    .footer-grid { grid-template-columns: 1fr 1fr; gap: 28px; }
+}
+
+/* 950px - Responsive Cards & Detail Grid */
+@media (max-width: 950px) {
+    .phone { display: none; }
+    .search-box { max-width: none; }
+    .catalog-layout { grid-template-columns: 1fr; }
+    .filter-card { position: static; margin-bottom: 24px; }
+    
+    .wm-detail-grid-layout {
+        grid-template-columns: 1fr;
+    }
+    .wm-sticky-widget {
+        position: static;
+    }
+}
+
+/* 768px - Card changes to vertical on tablets/mobiles */
+@media (max-width: 768px) {
+    .car-card-wm {
+        flex-direction: column;
+    }
+    .wm-img-col {
+        width: 100%;
+        min-width: 100%;
+        height: 220px;
+    }
+    .wm-price-col {
+        width: 100%;
+        min-width: 100%;
+        border-left: none;
+        border-top: 1px solid #f1f5f9;
+        flex-direction: row;
+        justify-content: space-between;
+    }
+    .wm-kr-box, .wm-market-box {
+        flex: 1;
+    }
+    .wm-slider-main-wrap {
+        height: 320px;
+    }
+    .wm-trim-specs-row {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+/* 650px */
+@media (max-width: 650px) {
+    .header { height: auto; min-height: 70px; }
+    .header-container { flex-wrap: wrap; padding: 12px 15px; }
+    .logo img { width: 130px; }
+    .menu-button { padding: 0 12px; }
+    .search-box { order: 3; flex-basis: 100%; max-width: none; margin-top: 8px; }
+    .header-right { margin-left: auto; }
+    .consultation-button { display: none; }
+    
+    .wm-price-col {
+        flex-direction: column;
+    }
+    .wm-detail-header-top {
+        flex-direction: column;
+    }
+    .wm-detail-btns-row {
+        flex-direction: column;
+    }
+    .wm-detail-specs-table {
+        grid-template-columns: 1fr;
+    }
+    .profile-grid {
+        grid-template-columns: 1fr;
+    }
+    .footer-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* 600px */
+@media (max-width: 600px) {
+    .auth-page { padding: 25px 15px 30px; }
+    .subtitle { font-size: 14px; margin-top: 8px; }
+    .login-card, .register-card { width: 100%; max-width: 400px; margin-top: 20px; padding: 28px 20px 30px; }
+    .login-card h1, .register-card h1 { font-size: 22px; }
+    .description { font-size: 15px; }
+    .input-group input, .input-group select { height: 50px; }
+    .primary-btn { height: 50px; }
+    .hero-title { font-size: 26px; }
+    .page-title { font-size: 22px; }
+}
+
+/* 430px */
+@media (max-width: 430px) {
+    .menu-button span:last-child { display: none; }
+    .menu-button { width: 42px; justify-content: center; padding: 0; }
+    .login-button { padding: 0 12px; }
+    .container { padding: 0 15px; }
+    .wm-slider-main-wrap { height: 240px; }
+    .wm-specs-grid { grid-template-columns: 1fr; }
+}
