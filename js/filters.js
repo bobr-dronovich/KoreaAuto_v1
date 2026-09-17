@@ -59,6 +59,17 @@ export class CatalogManager {
             this.loadMoreBtn.addEventListener("click", () => this.loadMore());
         }
 
+        // Live debounced search input
+        if (this.searchInput) {
+            let debounceTimer = null;
+            this.searchInput.addEventListener("input", () => {
+                clearTimeout(debounceTimer);
+                debounceTimer = setTimeout(() => {
+                    this.applyFilters();
+                }, 250);
+            });
+        }
+
         // Check search query in URL param (e.g. ?q=Santa)
         const urlParams = new URLSearchParams(window.location.search);
         const qParam = urlParams.get("q");
@@ -90,12 +101,15 @@ export class CatalogManager {
 
         this.container.innerHTML = `
             <div style="grid-column: 1/-1; text-align: center; padding: 60px 0; color: #718096;">
-                <div style="font-size: 20px; font-weight: 600; margin-bottom: 8px;">Загрузка автомобилей...</div>
-                <p>Получение актуальных предложений из Кореи</p>
+                <div style="font-size: 20px; font-weight: 600; margin-bottom: 8px;">Поиск автомобилей...</div>
+                <p>Получение актуальных предложений из базы данных</p>
             </div>
         `;
 
         const filters = this.getFilterState();
+        const isSearching = Boolean(filters.search);
+
+        // When actively searching, fetch larger batch so we don't miss matching cars beyond page 1
         const result = await fetchCars({
             brand: filters.brand,
             fuel: filters.fuel,
@@ -104,23 +118,19 @@ export class CatalogManager {
             minYear: filters.minYear,
             sortBy: filters.sortBy,
             lastDoc: null,
-            pageSize: 6
+            pageSize: isSearching ? 100 : 6
         });
 
         let cars = result.cars;
 
-        // Real text search by Brand, Model or Description
+        // Enhanced smart text search with Russian & English aliases
         if (filters.search) {
-            cars = cars.filter(c => 
-                (c.brand && c.brand.toLowerCase().includes(filters.search)) ||
-                (c.model && c.model.toLowerCase().includes(filters.search)) ||
-                (c.description && c.description.toLowerCase().includes(filters.search))
-            );
+            cars = cars.filter(c => checkCarMatchesSearch(c, filters.search));
         }
 
         this.allLoadedCars = cars;
         this.lastDoc = result.lastDoc;
-        this.hasMore = result.hasMore;
+        this.hasMore = isSearching ? false : result.hasMore;
         this.isLoading = false;
 
         this.renderCatalog();
@@ -202,3 +212,67 @@ export class CatalogManager {
         }
     }
 }
+
+// Brand and model aliases mapping (Russian to English)
+export const SEARCH_ALIASES = {
+    "генезис": "genesis",
+    "дженезис": "genesis",
+    "хендай": "hyundai",
+    "хёндай": "hyundai",
+    "хундай": "hyundai",
+    "киа": "kia",
+    "бмв": "bmw",
+    "мерседес": "mercedes",
+    "мерс": "mercedes",
+    "ауди": "audi",
+    "соренто": "sorento",
+    "карнивал": "carnival",
+    "карнивалл": "carnival",
+    "санта": "santa",
+    "сантафе": "santa fe",
+    "санта фе": "santa fe",
+    "палисад": "palisade",
+    "палисейд": "palisade",
+    "соната": "sonata",
+    "туссан": "tucson",
+    "тусон": "tucson",
+    "спортейдж": "sportage",
+    "спортидж": "sportage",
+    "к5": "k5"
+};
+
+// Check whether car matches search query with smart tokenizing
+export function checkCarMatchesSearch(car, rawQuery) {
+    if (!rawQuery) return true;
+    const q = rawQuery.toLowerCase().trim();
+    if (!q) return true;
+
+    // Expand search query with aliases
+    let expandedWords = [q];
+    for (const [alias, real] of Object.entries(SEARCH_ALIASES)) {
+        if (q.includes(alias)) {
+            expandedWords.push(q.replace(alias, real));
+            expandedWords.push(real);
+        }
+    }
+
+    const carText = [
+        car.brand || "",
+        car.model || "",
+        car.trim || "",
+        car.year ? String(car.year) : "",
+        car.fuel || "",
+        car.transmission || "",
+        car.engine || "",
+        car.condition || "",
+        car.location || "",
+        car.description || ""
+    ].join(" ").toLowerCase();
+
+    // Check if any expanded query or original query matches
+    return expandedWords.some(w => {
+        const tokens = w.split(/\s+/).filter(Boolean);
+        return tokens.every(token => carText.includes(token));
+    });
+}
+

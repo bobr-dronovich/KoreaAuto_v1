@@ -178,7 +178,7 @@ function initHeaderSearch() {
     const doSearch = () => {
         if (!searchInput) return;
         const val = searchInput.value.trim();
-        const isCatalogPage = window.location.pathname.endsWith("index.html") || window.location.pathname === "/";
+        const isCatalogPage = Boolean(document.getElementById("carsGrid"));
 
         if (isCatalogPage && window.catalogManager) {
             window.catalogManager.applyFilters();
@@ -189,10 +189,16 @@ function initHeaderSearch() {
 
     if (searchInput) {
         searchInput.addEventListener("keypress", (e) => {
-            if (e.key === "Enter") doSearch();
+            if (e.key === "Enter") {
+                e.preventDefault();
+                doSearch();
+            }
         });
     }
     if (searchBtn) {
-        searchBtn.addEventListener("click", doSearch);
+        searchBtn.addEventListener("click", (e) => {
+            e.preventDefault();
+            doSearch();
+        });
     }
 }

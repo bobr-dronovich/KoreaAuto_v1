@@ -3,6 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="referrer" content="no-referrer" />
     <link rel="stylesheet" href="css/style.css" />
     <link rel="stylesheet" href="css/responsive.css" />
     <link rel="icon" href="logos/favicon.ico" type="image/x-icon" />
@@ -112,8 +113,19 @@
 
           <form id="profileForm" style="margin-top: 10px">
             <div class="input-group">
+              <label for="profileEmailInput">Email учетной записи</label>
+              <input
+                type="email"
+                id="profileEmailInput"
+                readonly
+                style="background-color: #f8fafc; color: #4a5568; cursor: not-allowed; border: 1px solid #cbd5e1;"
+                title="Email привязан к вашей учетной записи Firebase"
+              />
+            </div>
+
+            <div class="input-group">
               <label for="profileName">Имя и фамилия</label>
-              <input type="text" id="profileName" required />
+              <input type="text" id="profileName" placeholder="Введите имя и фамилию" required />
             </div>
 
             <div class="input-group">
@@ -128,7 +140,7 @@
             <button
               type="submit"
               class="primary-btn"
-              style="height: 44px; font-size: 15px"
+              style="height: 44px; font-size: 15px; width: 100%;"
             >
               Сохранить изменения
             </button>

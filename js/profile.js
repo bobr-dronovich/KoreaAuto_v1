@@ -26,6 +26,7 @@ export function initProfilePage() {
     const nameInput = document.getElementById("profileName");
     const phoneInput = document.getElementById("profilePhone");
     const emailDisplay = document.getElementById("profileEmail");
+    const emailInput = document.getElementById("profileEmailInput");
     const avatarLetter = document.getElementById("avatarLetter");
     const roleBadge = document.getElementById("profileRoleBadge");
     const profileForm = document.getElementById("profileForm");
@@ -40,6 +41,7 @@ export function initProfilePage() {
 
         // 1. Immediately set email from user.email
         if (emailDisplay) emailDisplay.textContent = user.email;
+        if (emailInput) emailInput.value = user.email;
 
         // 2. Fetch profile from Firestore
         let profile = await getUserProfile(user.uid);
@@ -84,6 +86,13 @@ export function initProfilePage() {
                     }
 
                     if (avatarLetter) avatarLetter.textContent = (newName[0] || "U").toUpperCase();
+
+                    // Update header user badge immediately
+                    const headerName = document.querySelector("#userMenuBtn span");
+                    if (headerName) headerName.textContent = newName;
+                    const headerDropdownName = document.querySelector("#userDropdown .name");
+                    if (headerDropdownName) headerDropdownName.textContent = newName;
+
                     showToast("Данные профиля успешно сохранены!", "success");
                 } catch (err) {
                     console.error("Profile save error:", err);

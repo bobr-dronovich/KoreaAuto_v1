@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="referrer" content="no-referrer">
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/responsive.css">
     <link rel="icon" href="logos/favicon.ico" type="image/x-icon">
@@ -436,20 +437,21 @@
             document.getElementById("stickyMarket").textContent = formatUSD(marketUSD);
             document.getElementById("stickyUSD").textContent = formatUSD(priceUSD);
 
-            // Images & Slider Setup (1/20 style)
-            const mainImg = currentCar.imageUrl || "logos/KoreaAuto_logo.png";
-            sliderImages = [mainImg];
-            if (currentCar.images && Array.isArray(currentCar.images)) {
-                sliderImages.push(...currentCar.images);
-            } else {
-                // Realistic additional angles
-                sliderImages.push(
-                    "https://images.unsplash.com/photo-1549399542-7e3f8b79c341?w=800&q=80",
-                    "https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=800&q=80",
-                    "https://images.unsplash.com/photo-1552519507-da3b142c6e3d?w=800&q=80"
-                );
+            // Images & Slider Setup (WestMotors 1/20 style)
+            let imgs = [];
+            if (currentCar.imageUrl) imgs.push(currentCar.imageUrl.trim());
+            if (Array.isArray(currentCar.images)) {
+                currentCar.images.forEach(u => {
+                    if (u && typeof u === "string") {
+                        const clean = u.trim();
+                        if (clean && !imgs.includes(clean)) imgs.push(clean);
+                    }
+                });
             }
-
+            if (imgs.length === 0) {
+                imgs.push("logos/KoreaAuto_logo.png");
+            }
+            sliderImages = imgs;
             renderSlider();
 
             // Order Modal handlers
