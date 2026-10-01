@@ -92,7 +92,15 @@
 /* 600px */
 @media (max-width: 600px) {
     .auth-page { padding: 25px 15px 30px; }
-    .subtitle { font-size: 14px; margin-top: 8px; }
+    .subtitle { font-size: 14px; margin-top: 8px;         .calculator-modal-card { padding: 34px 20px 24px; }
+        .calculator-modal-card .modal-title { font-size: 24px; }
+        .calculator-callback { font-size: 15px; }
+        .calculator-car-summary { padding: 14px; gap: 8px 12px; }
+        .calculator-car-summary h4 { font-size: 16px; }
+        .calculator-price-breakdown { flex-direction: column; }
+        .calculator-country { font-size: 12px; }
+        .calculator-phone-row input { font-size: 17px; }
+    }
     .login-card, .register-card { width: 100%; max-width: 400px; margin-top: 20px; padding: 28px 20px 30px; }
     .login-card h1, .register-card h1 { font-size: 22px; }
     .description { font-size: 15px; }

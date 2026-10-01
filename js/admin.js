@@ -127,9 +127,10 @@ export const WESTMOTORS_DEMO_PRESETS = {
             year: 2026,
             trim: "2.5T Gasoline AWD",
             priceUSD: 38325,
-            priceKRW: 50900000,
-            priceKZT: 17437807,
-            marketPriceUSD: 40283,
+            priceKRW: 51700000,
+            priceKZT: 19162500,
+            price: 19162500,
+            marketPriceUSD: 41200,
             mileage: 4417,
             engine: "2.5 T-GDI (304 л.с.)",
             displacement: "2.5 L",
@@ -150,10 +151,11 @@ export const WESTMOTORS_DEMO_PRESETS = {
             model: "GV80 Executive",
             year: 2022,
             trim: "3.0 Diesel AWD VIP",
-            priceUSD: 5200000 / 90,
-            priceKRW: 68500000,
-            priceKZT: 26200000,
-            marketPriceUSD: 61000,
+            priceUSD: 57800,
+            priceKRW: 78000000,
+            priceKZT: 28900000,
+            price: 28900000,
+            marketPriceUSD: 62400,
             mileage: 38000,
             engine: "3.0 V6 Diesel (278 л.с.)",
             displacement: "3.0 L",
@@ -175,9 +177,10 @@ export const WESTMOTORS_DEMO_PRESETS = {
             year: 2023,
             trim: "2.5 T-GDI HTRAC",
             priceUSD: 37500,
-            priceKRW: 49800000,
-            priceKZT: 17100000,
-            marketPriceUSD: 41200,
+            priceKRW: 50600000,
+            priceKZT: 18750000,
+            price: 18750000,
+            marketPriceUSD: 40500,
             mileage: 18000,
             engine: "2.5 T-GDI (281 л.с.)",
             displacement: "2.5 L",
@@ -201,9 +204,10 @@ export const WESTMOTORS_DEMO_PRESETS = {
             year: 2023,
             trim: "2.2 CRDi 9-мест Limousine",
             priceUSD: 43500,
-            priceKRW: 57900000,
-            priceKZT: 19800000,
-            marketPriceUSD: 47200,
+            priceKRW: 58700000,
+            priceKZT: 21750000,
+            price: 21750000,
+            marketPriceUSD: 46900,
             mileage: 15000,
             engine: "2.2 CRDi (199 л.с.)",
             displacement: "2.2 L",
@@ -225,9 +229,10 @@ export const WESTMOTORS_DEMO_PRESETS = {
             year: 2022,
             trim: "3.8 V6 AWD 7-мест",
             priceUSD: 41900,
-            priceKRW: 55800000,
-            priceKZT: 19100000,
-            marketPriceUSD: 45000,
+            priceKRW: 56500000,
+            priceKZT: 20950000,
+            price: 20950000,
+            marketPriceUSD: 45200,
             mileage: 28000,
             engine: "3.8 V6 (295 л.с.)",
             displacement: "3.8 L",
@@ -249,8 +254,9 @@ export const WESTMOTORS_DEMO_PRESETS = {
             year: 2022,
             trim: "2.2 Smartstream D 4WD",
             priceUSD: 33800,
-            priceKRW: 44900000,
-            priceKZT: 15400000,
+            priceKRW: 45600000,
+            priceKZT: 16900000,
+            price: 16900000,
             marketPriceUSD: 36500,
             mileage: 36000,
             engine: "2.2 Smartstream (202 л.с.)",
@@ -275,9 +281,10 @@ export const WESTMOTORS_DEMO_PRESETS = {
             year: 2022,
             trim: "3.5T AWD Sport Package",
             priceUSD: 49500,
-            priceKRW: 65900000,
-            priceKZT: 22500000,
-            marketPriceUSD: 54000,
+            priceKRW: 66800000,
+            priceKZT: 24750000,
+            price: 24750000,
+            marketPriceUSD: 53400,
             mileage: 24000,
             engine: "3.5 V6 Twin-Turbo (380 л.с.)",
             displacement: "3.5 L",
@@ -299,9 +306,10 @@ export const WESTMOTORS_DEMO_PRESETS = {
             year: 2022,
             trim: "1.6 Turbo GT-Line",
             priceUSD: 24900,
-            priceKRW: 33100000,
-            priceKZT: 11300000,
-            marketPriceUSD: 27500,
+            priceKRW: 33600000,
+            priceKZT: 12450000,
+            price: 12450000,
+            marketPriceUSD: 26800,
             mileage: 32000,
             engine: "1.6 Turbo (180 л.с.)",
             displacement: "1.6 L",
@@ -323,9 +331,10 @@ export const WESTMOTORS_DEMO_PRESETS = {
             year: 2023,
             trim: "2.0 CRDi 4WD N-Line",
             priceUSD: 28900,
-            priceKRW: 38500000,
-            priceKZT: 13150000,
-            marketPriceUSD: 31800,
+            priceKRW: 39000000,
+            priceKZT: 14450000,
+            price: 14450000,
+            marketPriceUSD: 31200,
             mileage: 9500,
             engine: "2.0 CRDi (186 л.с.)",
             displacement: "2.0 L",
@@ -491,8 +500,8 @@ function setupCarsManagement() {
 
             const isEdit = Boolean(carIdInput.value);
             const usd = Number(priceUSDInput.value) || 38325;
-            const krw = priceKRWInput.value ? Number(priceKRWInput.value) : Math.round(usd * 1330);
-            const kzt = priceKZTInput.value ? Number(priceKZTInput.value) : Math.round(usd * 455);
+            const krw = priceKRWInput.value ? Number(priceKRWInput.value) : Math.round(usd * 1350);
+            const kzt = priceKZTInput.value ? Number(priceKZTInput.value) : Math.round(usd * 500);
 
             const mainPhoto = imgInput.value.trim() || "logos/KoreaAuto_logo.png";
             const extraPhotos = galleryInput ? galleryInput.value.split(/[\n,]+/).map(s => s.trim()).filter(Boolean) : [];
@@ -506,8 +515,8 @@ function setupCarsManagement() {
                 priceUSD: usd,
                 priceKRW: krw,
                 priceKZT: kzt,
-                price: usd * 90,
-                marketPriceUSD: Math.round(usd * 1.05 + 1958),
+                price: kzt, // в тенге для нативной сортировки и фильтрации в каталоге
+                marketPriceUSD: Math.round(usd * 1.08),
                 mileage: Number(mileageInput.value),
                 displacement: "2.5 L",
                 engine: trimInput.value.trim() || "2.5 T-GDI",
@@ -1057,7 +1066,7 @@ function setupApplicationsRealtime() {
                     </td>
                     <td>
                         <div style="font-weight:600;">${a.carTitle || 'Подбор авто'}</div>
-                        <div style="font-size:12px;color:#e52b38;">${formatUSD(a.carPrice)}</div>
+                        <div style="font-size:12px;color:#e52b38;">${formatKZT(a.carPrice)}</div>
                     </td>
                     <td>${formatDate(a.createdAt)}</td>
                     <td>${getStatusBadge(a.status)}</td>
@@ -1150,6 +1159,9 @@ async function setupUsersManagement() {
                     });
                     showToast(`Роль обновлена на ${newRole}!`, "success");
                 } catch (err) {
+                    sel.value = uid === auth.currentUser?.uid
+                        ? "admin"
+                        : (newRole === "admin" ? "user" : "admin");
                     showToast("Ошибка: " + err.message, "error");
                 }
             });

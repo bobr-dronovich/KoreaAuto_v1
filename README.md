@@ -159,92 +159,22 @@ KoreaAuto_v1/
 3. **Database ID**: оставьте `(default)`.
 4. **Location** (Регион базы): выберите европейский регион, например `europe-west1` (Бельгия) или `eur3` (Франкфурт) — для высокой скорости отклика.
 5. Нажмите **Next** (Далее).
-6. В окне выбора режима выберите **Start in test mode** (для быстрого старта) или **Start in production mode**.
+6. Выберите **Start in production mode**, затем опубликуйте правила из `firestore.rules`.
 7. Нажмите **Create** (Создать). Через 15–20 секунд база будет развернута!
 
 ---
 
 ### Шаг 3. Установка правил безопасности (Security Rules)
 
-1. В разделе **Firestore Database** перейдите во вкладку **Rules** (Правила).
-2. Сотрите всё стандартное содержимое и вставьте код из файла `firestore.rules`:
-
-```javascript
-rules_version = '2';
-service cloud.firestore {
-  match /databases/{database}/documents {
-    
-    function isAuthenticated() {
-      return request.auth != null;
-    }
-
-    function isAdmin() {
-      return isAuthenticated() && 
-        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
-    }
-
-    function isOwner(userId) {
-      return isAuthenticated() && request.auth.uid == userId;
-    }
-
-    // Пользователи
-    match /users/{userId} {
-      allow read: if isAuthenticated();
-      allow create: if isOwner(userId);
-      allow update: if (isOwner(userId) && (!request.resource.data.diff(resource.data).affectedKeys().hasAny(['role']))) 
-                    || isAdmin();
-      allow delete: if isAdmin();
-    }
-
-    // Каталог автомобилей
-    match /cars/{carId} {
-      allow read: if true;
-      allow create, update, delete: if isAdmin();
-    }
-
-    // Заявки
-    match /applications/{appId} {
-      allow read: if isAdmin() || (isAuthenticated() && resource.data.userId == request.auth.uid);
-      allow create: if isAuthenticated() && request.resource.data.userId == request.auth.uid;
-      allow update: if isAdmin() || (isAuthenticated() && resource.data.userId == request.auth.uid);
-      allow delete: if isAdmin();
-    }
-
-    // Отзывы
-    match /reviews/{reviewId} {
-      allow read: if true;
-      allow create: if isAuthenticated() && request.resource.data.userId == request.auth.uid;
-      allow update, delete: if isAdmin() || (isAuthenticated() && resource.data.userId == request.auth.uid);
-    }
-
-    // Избранное
-    match /favorites/{favId} {
-      allow read, write: if isAuthenticated();
-    }
-
-  }
-}
-```
-3. Нажмите кнопку **Publish** (Опубликовать).
-> **Важно**: В этих правилах реализовано строгое разграничение: обычный пользователь не может сам сделать себя админом, удалять чужие заявки или редактировать каталог автомобилей. Преподаватель оценит это на высший балл!
+1. Установите Firebase CLI и выполните `firebase login`.
+2. Из корня проекта выполните `firebase deploy --only firestore:rules,firestore:indexes`.
+3. В консоли Firebase убедитесь, что опубликованы правила из `firestore.rules` и индексы из `firestore.indexes.json`.
 
 ---
 
 ### Шаг 4. Композитные индексы (Composite Indexes)
 
-В Firestore при фильтрации по одному полю (например, `brand`) и одновременной сортировке по другому полю (например, `price`) требуется составной индекс.
-В проекте KoreaAuto это настроено максимально удобно:
-- Базовые запросы оптимизированы.
-- Если Firestore потребует индекс, он **выведет в консоль браузера (F12) прямую готовую ссылку**. Вам достаточно кликнуть по ссылке из консоли, откроется Firebase Console и останется нажать кнопку **Create Index**!
-- Чтобы создать заранее вручную:
-  1. В Firestore Database перейдите во вкладку **Indexes** -> **Composite**.
-  2. Нажмите **Add Index**.
-  3. Collection ID: `cars`
-  4. Поля:
-     - `brand` — Ascending
-     - `price` — Ascending
-     - `createdAt` — Descending
-  5. Query scope: Collection -> **Create index**.
+Для каталога подготовлены составные индексы по марке, топливу и сортировке. Их можно опубликовать вместе с правилами командой из предыдущего раздела.
 
 ---
 

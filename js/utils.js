@@ -1,22 +1,38 @@
-// ==========================================================================
-// KoreaAuto_v1 - Utility Functions & Helpers
-// ==========================================================================
+// вспомогательные функции для проекта KoreaAuto
 
 import { auth, db, doc, getDoc, onAuthStateChanged } from "./firebase.js";
 
-// Format currency
+// форматируем цену в тенге
 export function formatPrice(num) {
     if (num === null || num === undefined || isNaN(num)) return "Цена по запросу";
-    return new Intl.NumberFormat("ru-RU").format(num) + " ₽";
+    return new Intl.NumberFormat("ru-RU").format(Math.round(num)) + " ₸";
 }
 
-// Format mileage
+// Форматирование в долларах
+export function formatUSD(num) {
+    if (!num) return "$38 325";
+    return "$" + new Intl.NumberFormat("en-US").format(Math.round(num));
+}
+
+// форматирование в корейских вонах
+export function formatKRW(num) {
+    if (!num) return "₩51 700 000";
+    return "₩" + new Intl.NumberFormat("en-US").format(Math.round(num));
+}
+
+// Форматирование в казахстанских тенге
+export function formatKZT(num) {
+    if (!num) return "19 162 500 ₸";
+    return new Intl.NumberFormat("ru-RU").format(Math.round(num)) + " ₸";
+}
+
+// пробег авто
 export function formatMileage(num) {
     if (num === null || num === undefined) return "0 км";
     return new Intl.NumberFormat("ru-RU").format(num) + " км";
 }
 
-// Format Firestore Timestamp or Date
+// Красивый вывод даты из таймстемпа firestore
 export function formatDate(timestamp) {
     if (!timestamp) return "-";
     const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
@@ -29,7 +45,7 @@ export function formatDate(timestamp) {
     });
 }
 
-// Status Badges & Labels
+// статусы заявок для бейджей
 export const STATUS_MAP = {
     new: { label: "Новая", class: "status-new" },
     in_progress: { label: "В обработке", class: "status-in_progress" },
@@ -44,7 +60,7 @@ export function getStatusBadge(status) {
     return `<span class="status-badge ${info.class}">${info.label}</span>`;
 }
 
-// Toast notification
+// всплывающие уведомления (тосты)
 export function showToast(message, type = "info") {
     let container = document.querySelector(".toast-container");
     if (!container) {
@@ -76,28 +92,57 @@ export function showToast(message, type = "info") {
     }, 4000);
 }
 
-// Get user profile from Firestore
-export async function getUserProfile(uid) {
+// Сохраняем данные профиля в локальный кэш чтоб сразу показывать
+export function saveLocalProfile(uid, data) {
+    if (!uid || !data) return;
     try {
-        const userDoc = await getDoc(doc(db, "users", uid));
-        if (userDoc.exists()) {
-            return userDoc.data();
-        }
-        return null;
+        const existing = getLocalProfile(uid) || {};
+        const merged = { ...existing, ...data };
+        localStorage.setItem(`koreaauto_user_profile_${uid}`, JSON.stringify(merged));
     } catch (e) {
-        console.error("Error fetching user profile:", e);
+        console.warn("ошибка кэша профиля:", e);
+    }
+}
+
+// читаем профиль из кэша
+export function getLocalProfile(uid) {
+    if (!uid) return null;
+    try {
+        const raw = localStorage.getItem(`koreaauto_user_profile_${uid}`);
+        return raw ? JSON.parse(raw) : null;
+    } catch (e) {
         return null;
     }
 }
 
-// Get currently authenticated user with profile
+// Получаем профиль из firestore с быстрым фолбэком на локальный кэш
+export async function getUserProfile(uid) {
+    if (!uid) return null;
+    const cached = getLocalProfile(uid);
+
+    try {
+        const userDoc = await getDoc(doc(db, "users", uid));
+        if (userDoc.exists()) {
+            const data = userDoc.data();
+            const fullProfile = { ...(cached || {}), ...data };
+            saveLocalProfile(uid, fullProfile);
+            return fullProfile;
+        }
+    } catch (e) {
+        console.warn("не удалось загрузить профиль из firestore, берем локальный:", e);
+    }
+
+    return cached;
+}
+
+// текущий юзер вместе с профилем
 export async function getCurrentUserWithProfile() {
     try {
         if (typeof auth.authStateReady === "function") {
             await auth.authStateReady();
         }
     } catch (e) {
-        console.warn("authStateReady failed or not supported:", e);
+        console.warn("authStateReady:", e);
     }
 
     if (auth.currentUser) {
@@ -118,7 +163,7 @@ export async function getCurrentUserWithProfile() {
     });
 }
 
-// Guard page for authenticated users
+// проверка авторизации для закрытых страниц
 export async function requireAuth(redirectUrl = "login.html") {
     const { user, profile } = await getCurrentUserWithProfile();
     if (!user) {
@@ -128,15 +173,15 @@ export async function requireAuth(redirectUrl = "login.html") {
     return { user, profile };
 }
 
-// Guard page for admin users
+// Проверка роли админа
 export async function requireAdmin(redirectUrl = "index.html") {
     const { user, profile } = await getCurrentUserWithProfile();
     if (!user) {
         window.location.href = "login.html";
         return null;
     }
-    if (!profile || (profile.role && profile.role.trim() !== "admin")) {
-        showToast("Доступ запрещен. Требуются права администратора.", "error");
+    if (profile?.role !== "admin") {
+        showToast("Доступ запрещен. Нужны права администратора.", "error");
         setTimeout(() => {
             window.location.href = redirectUrl;
         }, 1200);
@@ -145,12 +190,13 @@ export async function requireAdmin(redirectUrl = "index.html") {
     return { user, profile };
 }
 
-// Modal dialog helpers
+// открытие модалки
 export function openModal(id) {
     const el = document.getElementById(id);
     if (el) el.classList.add("active");
 }
 
+// закрытие модалки
 export function closeModal(id) {
     const el = document.getElementById(id);
     if (el) el.classList.remove("active");

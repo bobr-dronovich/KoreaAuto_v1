@@ -1,6 +1,4 @@
-// ==========================================================================
-// KoreaAuto_v1 - Cars & Reviews Service (Firestore queries, pagination, onSnapshot)
-// ==========================================================================
+// работа с автомобилями и отзывами в firestore
 
 import { 
     db, 
@@ -20,26 +18,33 @@ import {
     serverTimestamp 
 } from "./firebase.js";
 
-import { formatPrice, formatMileage, showToast } from "./utils.js";
+import { formatPrice, formatMileage, showToast, formatUSD, formatKRW, formatKZT } from "./utils.js";
 import { isCarInFavorites, toggleFavorite } from "./favorites.js";
 
-// Helper for formatting currencies
-export function formatUSD(num) {
-    if (!num) return "$38 325";
-    return "$" + new Intl.NumberFormat("en-US").format(Math.round(num));
+// реэкспорт функций валют чтоб все импорты работали
+export { formatUSD, formatKRW, formatKZT };
+
+// расчет цен в трех валютах (1 usd = 500 kzt, 1 usd = 1350 krw)
+export function getCarPrices(car) {
+    let usd = 38325;
+    if (car.priceUSD) {
+        usd = Number(car.priceUSD);
+    } else if (car.priceKZT) {
+        usd = Math.round(Number(car.priceKZT) / 500);
+    } else if (car.price && car.price > 1000000) {
+        usd = Math.round(Number(car.price) / 500);
+    } else if (car.price) {
+        usd = Number(car.price);
+    }
+
+    const krw = car.priceKRW ? Number(car.priceKRW) : Math.round(usd * 1350);
+    const kzt = car.priceKZT ? Number(car.priceKZT) : Math.round(usd * 500);
+    const marketUSD = car.marketPriceUSD ? Number(car.marketPriceUSD) : Math.round(usd * 1.08);
+
+    return { usd, krw, kzt, marketUSD };
 }
 
-export function formatKRW(num) {
-    if (!num) return "₩50 900 000";
-    return "₩" + new Intl.NumberFormat("en-US").format(Math.round(num));
-}
-
-export function formatKZT(num) {
-    if (!num) return "17 437 807 ₸";
-    return new Intl.NumberFormat("ru-RU").format(Math.round(num)) + " ₸";
-}
-
-// Fetch cars with filtering, sorting, and pagination
+// Загружаем страницу машин из Firestore.
 export async function fetchCars({
     brand = "",
     minPrice = null,
@@ -48,70 +53,63 @@ export async function fetchCars({
     fuel = "",
     sortBy = "createdAt_desc",
     lastDoc = null,
-    pageSize = 6
+    pageSize = 10,
+    searchMatcher = () => true
 } = {}) {
     try {
         const carsRef = collection(db, "cars");
-        let constraints = [];
+        const pageCars = [];
+        let cursor = lastDoc;
+        let reachedEnd = false;
+        const batchSize = Math.max(pageSize * 3, 30);
 
-        // Filter by Brand
-        if (brand && brand !== "all") {
-            constraints.push(where("brand", "==", brand));
+        while (pageCars.length <= pageSize && !reachedEnd) {
+            const constraints = [];
+            if (brand && brand !== "all") constraints.push(where("brand", "==", brand));
+            if (fuel && fuel !== "all") constraints.push(where("fuel", "==", fuel));
+
+            switch (sortBy) {
+                case "price_asc":
+                    constraints.push(orderBy("price", "asc"));
+                    break;
+                case "price_desc":
+                    constraints.push(orderBy("price", "desc"));
+                    break;
+                case "year_desc":
+                    constraints.push(orderBy("year", "desc"));
+                    break;
+                case "year_asc":
+                    constraints.push(orderBy("year", "asc"));
+                    break;
+                default:
+                    constraints.push(orderBy("createdAt", "desc"));
+            }
+
+            if (cursor) constraints.push(startAfter(cursor));
+            constraints.push(limit(batchSize));
+
+            const snapshot = await getDocs(query(carsRef, ...constraints));
+            if (snapshot.empty) break;
+
+            snapshot.forEach((docSnap) => {
+                const car = { id: docSnap.id, ...docSnap.data(), _doc: docSnap };
+                const { kzt } = getCarPrices(car);
+                const matchesPrice = (minPrice === null || minPrice <= 0 || kzt >= minPrice)
+                    && (maxPrice === null || maxPrice <= 0 || kzt <= maxPrice);
+                const matchesYear = minYear === null || minYear <= 0 || Number(car.year) >= minYear;
+
+                if (matchesPrice && matchesYear && searchMatcher(car)) pageCars.push(car);
+            });
+
+            cursor = snapshot.docs[snapshot.docs.length - 1];
+            reachedEnd = snapshot.size < batchSize;
         }
 
-        // Filter by Fuel
-        if (fuel && fuel !== "all") {
-            constraints.push(where("fuel", "==", fuel));
-        }
-
-        // Sorting
-        switch (sortBy) {
-            case "price_asc":
-                constraints.push(orderBy("price", "asc"));
-                break;
-            case "price_desc":
-                constraints.push(orderBy("price", "desc"));
-                break;
-            case "year_desc":
-                constraints.push(orderBy("year", "desc"));
-                break;
-            case "year_asc":
-                constraints.push(orderBy("year", "asc"));
-                break;
-            case "createdAt_desc":
-            default:
-                constraints.push(orderBy("createdAt", "desc"));
-                break;
-        }
-
-        if (lastDoc) {
-            constraints.push(startAfter(lastDoc));
-        }
-
-        constraints.push(limit(pageSize + 1));
-
-        const q = query(carsRef, ...constraints);
-        const snapshot = await getDocs(q);
-
-        let cars = [];
-        snapshot.forEach((docSnap) => {
-            cars.push({ id: docSnap.id, ...docSnap.data(), _doc: docSnap });
-        });
-
-        // Client-side range filters
-        if (minPrice !== null && minPrice > 0) {
-            cars = cars.filter(c => Number(c.price || c.priceUSD || 0) >= minPrice);
-        }
-        if (maxPrice !== null && maxPrice > 0) {
-            cars = cars.filter(c => Number(c.price || c.priceUSD || 0) <= maxPrice);
-        }
-        if (minYear !== null && minYear > 0) {
-            cars = cars.filter(c => Number(c.year) >= minYear);
-        }
-
-        const hasMore = cars.length > pageSize;
-        const resultCars = hasMore ? cars.slice(0, pageSize) : cars;
-        const newLastDoc = resultCars.length > 0 ? resultCars[resultCars.length - 1]._doc : null;
+        const hasMore = pageCars.length > pageSize;
+        const resultCars = hasMore ? pageCars.slice(0, pageSize) : pageCars;
+        const newLastDoc = resultCars.length > 0
+            ? resultCars[resultCars.length - 1]._doc
+            : cursor;
 
         return {
             cars: resultCars,
@@ -119,13 +117,32 @@ export async function fetchCars({
             hasMore: hasMore
         };
     } catch (err) {
-        console.error("Error fetching cars:", err);
+        console.error("ошибка загрузки авто:", err);
         showToast("Ошибка загрузки каталога: " + err.message, "error");
         return { cars: [], lastDoc: null, hasMore: false };
     }
 }
 
-// Fetch single car by ID
+// Следим за последними изменениями каталога.
+export function subscribeToLatestCars(callback) {
+    const q = query(collection(db, "cars"), orderBy("createdAt", "desc"), limit(10));
+    let firstSnapshot = true;
+
+    return onSnapshot(q, (snapshot) => {
+        if (firstSnapshot) {
+            firstSnapshot = false;
+            return;
+        }
+        if (snapshot.docChanges().some(change => change.type === "added" || change.type === "modified" || change.type === "removed")) {
+            callback();
+        }
+    }, (error) => {
+        console.error("Ошибка обновления каталога в реальном времени:", error);
+        showToast("Не удалось включить обновление каталога: " + error.message, "error");
+    });
+}
+
+// Получаем одну машину.
 export async function fetchCarById(carId) {
     try {
         const carDoc = await getDoc(doc(db, "cars", carId));
@@ -134,12 +151,12 @@ export async function fetchCarById(carId) {
         }
         return null;
     } catch (e) {
-        console.error("Error fetching car by id:", e);
+        console.error("ошибка получения авто по id:", e);
         return null;
     }
 }
 
-// Real-time subscription to a single car
+// слушатель авто в реальном времени
 export function subscribeToCar(carId, callback) {
     return onSnapshot(doc(db, "cars", carId), (docSnap) => {
         if (docSnap.exists()) {
@@ -148,11 +165,11 @@ export function subscribeToCar(carId, callback) {
             callback(null);
         }
     }, (error) => {
-        console.error("Car snapshot error:", error);
+        console.error("ошибка snapshot авто:", error);
     });
 }
 
-// Fetch related cars
+// похожие автомобили той же марки
 export async function fetchRelatedCars(brand, currentCarId, maxCount = 3) {
     try {
         const carsRef = collection(db, "cars");
@@ -166,12 +183,12 @@ export async function fetchRelatedCars(brand, currentCarId, maxCount = 3) {
         });
         return related;
     } catch (e) {
-        console.error("Error fetching related cars:", e);
+        console.error("ошибка похожих авто:", e);
         return [];
     }
 }
 
-// Subscribe to reviews in Real-Time
+// подписка на отзывы в реальном времени (onSnapshot)
 export function subscribeToReviews(carId, callback) {
     const reviewsRef = collection(db, "reviews");
     const q = query(reviewsRef, where("carId", "==", carId));
@@ -180,6 +197,7 @@ export function subscribeToReviews(carId, callback) {
         snapshot.forEach(docSnap => {
             reviews.push({ id: docSnap.id, ...docSnap.data() });
         });
+        // сортируем сначала свежие
         reviews.sort((a, b) => {
             const timeA = a.createdAt?.seconds || 0;
             const timeB = b.createdAt?.seconds || 0;
@@ -187,11 +205,11 @@ export function subscribeToReviews(carId, callback) {
         });
         callback(reviews);
     }, (error) => {
-        console.error("Reviews snapshot error:", error);
+        console.error("ошибка подписки на отзывы:", error);
     });
 }
 
-// Add review
+// добавить новый отзыв
 export async function addReview(carId, { rating, comment, user, profile }) {
     try {
         const reviewsRef = collection(db, "reviews");
@@ -211,7 +229,23 @@ export async function addReview(carId, { rating, comment, user, profile }) {
     }
 }
 
-// Delete review
+// обновление отзыва
+export async function updateReview(reviewId, { rating, comment }) {
+    try {
+        await updateDoc(doc(db, "reviews", reviewId), {
+            rating: Number(rating),
+            comment: comment.trim(),
+            updatedAt: serverTimestamp()
+        });
+        showToast("Отзыв успешно обновлен!", "success");
+        return true;
+    } catch (e) {
+        showToast("Ошибка обновления отзыва: " + e.message, "error");
+        return false;
+    }
+}
+
+// удаление отзыва
 export async function deleteReview(reviewId) {
     try {
         await deleteDoc(doc(db, "reviews", reviewId));
@@ -223,18 +257,13 @@ export async function deleteReview(reviewId) {
     }
 }
 
-// ==========================================================================
-// RENDER CAR CARD: WestMotors Horizontal Layout (Exact match to screenshot)
-// ==========================================================================
+// рендер карточки автомобиля в каталоге
 export function renderCarCard(car, isFav = false) {
     const img = car.imageUrl || "logos/KoreaAuto_logo.png";
     const title = `${car.year} ${car.brand} ${car.model}`;
     
-    // Financial calculations
-    const priceUSD = car.priceUSD || (car.price > 100000 ? Math.round(car.price / 90) : (car.price || 38325));
-    const priceKRW = car.priceKRW || Math.round(priceUSD * 1330);
-    const priceKZT = car.priceKZT || Math.round(priceUSD * 455);
-    const marketUSD = car.marketPriceUSD || Math.round(priceUSD * 1.05 + 1958);
+    // расчет цен в валютах
+    const { usd: priceUSD, krw: priceKRW, kzt: priceKZT, marketUSD } = getCarPrices(car);
 
     const displacement = car.displacement || (car.engine ? car.engine.split(" ")[0] : "2.5 L");
     const trans = car.transmission || "Автомат (AT)";
@@ -247,7 +276,7 @@ export function renderCarCard(car, isFav = false) {
 
     return `
         <div class="car-card-wm" data-id="${car.id}">
-            <!-- Левая колонка с фото и синей плашкой цены -->
+            <!-- колонка с фото и синей плашкой цены -->
             <div class="wm-img-col">
                 <a href="car.html?id=${car.id}">
                     <img src="${img}" alt="${title}" loading="lazy" onerror="this.src='logos/KoreaAuto_logo.png'">
@@ -263,7 +292,7 @@ export function renderCarCard(car, isFav = false) {
                 </button>
             </div>
 
-            <!-- Центральная колонка с характеристиками -->
+            <!-- характеристики авто -->
             <div class="wm-content-col">
                 <div class="wm-header-row">
                     <div>
@@ -300,19 +329,18 @@ export function renderCarCard(car, isFav = false) {
                         <span>Тип двигателя: ${fuel}</span>
                     </div>
                     <div class="wm-spec-item">
-                        <a href="car.html?id=${car.id}#history" class="wm-report-btn">
-                            📷 Отчёт по авто
-                        </a>
+                        <span style="color:#16a34a; font-weight:700;">🛡️</span>
+                        <span style="color:#16a34a; font-weight:600;">Отличная история</span>
                     </div>
                 </div>
 
                 <div class="wm-actions-row">
                     <button class="wm-btn-call consultation-button">Позвонить мне</button>
-                    <button class="wm-btn-order quick-order-btn" data-id="${car.id}" data-title="${title}" data-price="${priceUSD}" data-image="${img}">Хочу заказать</button>
+                    <button class="wm-btn-order quick-order-btn" data-id="${car.id}" data-title="${title}" data-price="${priceUSD}" data-price-kzt="${priceKZT}" data-image="${img}">Рассчитать стоимость</button>
                 </div>
             </div>
 
-            <!-- Правая колонка: ЦЕНА В КОРЕЕ и Рыночная цена -->
+            <!-- правая колонка с ценами -->
             <div class="wm-price-col">
                 <div class="wm-kr-box">
                     <div class="label">ЦЕНА В КОРЕЕ</div>

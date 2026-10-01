@@ -1,6 +1,4 @@
-// ==========================================================================
-// KoreaAuto_v1 - Authentication Logic (Login, Register, Logout, Reset)
-// ==========================================================================
+// авторизация, регистрация и управление сессией пользователя
 
 import { 
     auth, 
@@ -18,9 +16,9 @@ import {
     serverTimestamp 
 } from "./firebase.js";
 
-import { showToast } from "./utils.js";
+import { showToast, saveLocalProfile, getUserProfile } from "./utils.js";
 
-// Translate Firebase error codes into human-readable Russian
+// перевод кодов ошибок firebase на человеческий русский
 export function formatAuthError(error) {
     switch (error.code) {
         case "auth/invalid-email":
@@ -38,34 +36,34 @@ export function formatAuthError(error) {
         case "auth/network-request-failed":
             return "Ошибка сети. Проверьте интернет-соединение.";
         case "auth/too-many-requests":
-            return "Слишком много неудачных попыток. Пожалуйста, подождите.";
+            return "Слишком много попыток. Пожалуйста, подождите.";
         default:
             return error.message || "Произошла ошибка при авторизации.";
     }
 }
 
-// User Logout
+// выход из аккаунта
 export async function logoutUser() {
     try {
         await signOut(auth);
-        showToast("Вы успешно вышли из системы.", "info");
+        showToast("Вы вышли из системы.", "info");
         setTimeout(() => {
             window.location.href = "index.html";
-        }, 600);
+        }, 500);
     } catch (e) {
         showToast(formatAuthError(e), "error");
     }
 }
 
-// Send Password Reset
+// сброс пароля на почту
 export async function resetUserPassword(email) {
     if (!email) {
-        showToast("Укажите адрес электронной почты для сброса пароля.", "error");
+        showToast("Укажите email для сброса пароля.", "error");
         return false;
     }
     try {
         await sendPasswordResetEmail(auth, email);
-        showToast("Ссылка для сброса пароля отправлена на ваш Email.", "success");
+        showToast("Ссылка для сброса пароля отправлена на почту.", "success");
         return true;
     } catch (e) {
         showToast(formatAuthError(e), "error");
@@ -73,7 +71,7 @@ export async function resetUserPassword(email) {
     }
 }
 
-// Init Login Page Form
+// форма входа
 export function initLoginForm() {
     const loginForm = document.getElementById("loginForm");
     const loginInput = document.getElementById("loginEmail");
@@ -84,7 +82,7 @@ export function initLoginForm() {
 
     if (!loginForm) return;
 
-    // Toggle disabled state when inputs change
+    // проверка заполненности полей
     const checkInputs = () => {
         const hasValues = loginInput.value.trim().length > 0 && passwordInput.value.length > 0;
         submitBtn.disabled = !hasValues;
@@ -105,20 +103,38 @@ export function initLoginForm() {
         submitBtn.textContent = "Вход...";
 
         try {
-            // Set persistence based on "Remember me"
+            // режим сохранения сессии (запомнить меня или до закрытия вкладки)
             const persistenceType = remember ? browserLocalPersistence : browserSessionPersistence;
             await setPersistence(auth, persistenceType);
 
             const userCredential = await signInWithEmailAndPassword(auth, email, password);
-            showToast(`Добро пожаловать, ${userCredential.user.displayName || email}!`, "success");
+            const user = userCredential.user;
 
-            // Redirect back or to index.html
+            // кэшируем профиль для мгновенного отображения
+            try {
+                const profile = await getUserProfile(user.uid);
+                if (profile) {
+                    saveLocalProfile(user.uid, profile);
+                } else {
+                    saveLocalProfile(user.uid, {
+                        uid: user.uid,
+                        email: user.email,
+                        displayName: user.displayName || user.email.split("@")[0],
+                        role: "user"
+                    });
+                }
+            } catch (errProfile) {
+                console.warn("кэш при логине:", errProfile);
+            }
+
+            showToast(`Добро пожаловать, ${user.displayName || email}!`, "success");
+
             const urlParams = new URLSearchParams(window.location.search);
             const returnUrl = urlParams.get("returnUrl") || "index.html";
 
             setTimeout(() => {
                 window.location.href = returnUrl;
-            }, 800);
+            }, 700);
         } catch (err) {
             submitBtn.disabled = false;
             submitBtn.textContent = originalText;
@@ -137,7 +153,7 @@ export function initLoginForm() {
     }
 }
 
-// Init Register Page Form
+// форма регистрации нового пользователя
 export function initRegisterForm() {
     const registerForm = document.getElementById("registerForm");
     const nameInput = document.getElementById("regName");
@@ -149,6 +165,7 @@ export function initRegisterForm() {
 
     if (!registerForm) return;
 
+    // проверка валидности данных перед отправкой
     const checkInputs = () => {
         const isValid = nameInput.value.trim() &&
                         emailInput.value.trim() &&
@@ -181,27 +198,41 @@ export function initRegisterForm() {
         submitBtn.textContent = "Регистрация...";
 
         try {
-            // 1. Create user in Firebase Auth
+            // 1. создаем аккаунт в firebase auth
             const userCredential = await createUserWithEmailAndPassword(auth, email, password);
             const user = userCredential.user;
 
-            // 2. Update display name in Auth
-            await updateProfile(user, { displayName: name });
+            // 2. сохраняем отображаемое имя
+            try {
+                await updateProfile(user, { displayName: name });
+            } catch (eAuth) {
+                console.warn("updateProfile error:", eAuth);
+            }
 
-            // 3. Create user document in Firestore 'users' collection
-            await setDoc(doc(db, "users", user.uid), {
+            // 3. сохраняем профиль локально сразу чтоб не терялся
+            const profileData = {
                 uid: user.uid,
                 email: email,
                 displayName: name,
                 phone: phone || "",
-                role: "user", // Default role
-                createdAt: serverTimestamp()
-            });
+                role: "user"
+            };
+            saveLocalProfile(user.uid, profileData);
+
+            // 4. пишем в коллекцию users в firestore
+            try {
+                await setDoc(doc(db, "users", user.uid), {
+                    ...profileData,
+                    createdAt: serverTimestamp()
+                });
+            } catch (errDb) {
+                console.warn("firestore user save warning:", errDb);
+            }
 
             showToast("Регистрация успешна! Перенаправление...", "success");
             setTimeout(() => {
-                window.location.href = "index.html";
-            }, 1000);
+                window.location.href = "profile.html";
+            }, 800);
         } catch (err) {
             submitBtn.disabled = false;
             submitBtn.textContent = originalText;

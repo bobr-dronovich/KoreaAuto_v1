@@ -2,58 +2,79 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-    
-    // Проверка: авторизован ли пользователь в системе
-    function isAuthenticated() {
+    function signedIn() {
       return request.auth != null;
     }
 
-    // Проверка: является ли пользователь владельцем документа
     function isOwner(userId) {
-      return isAuthenticated() && request.auth.uid == userId;
+      return signedIn() && request.auth.uid == userId;
     }
 
-    // 1. Коллекция пользователей (users)
+    function isAdmin() {
+      return signedIn()
+        && exists(/databases/$(database)/documents/users/$(request.auth.uid))
+        && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+
     match /users/{userId} {
-      // Авторизованный пользователь может читать профили
-      allow read: if isAuthenticated();
-      // Владелец может создавать и обновлять свои данные
-      allow create, update: if isOwner(userId);
-      allow delete: if isAuthenticated();
+      allow read: if isOwner(userId) || isAdmin();
+      allow create: if isOwner(userId)
+        && request.resource.data.role == 'user'
+        && request.resource.data.uid == request.auth.uid;
+      allow update: if isAdmin()
+        || (isOwner(userId)
+          && !request.resource.data.diff(resource.data).affectedKeys()
+            .hasAny(['role', 'uid', 'createdAt'])
+          && request.resource.data.email == request.auth.token.email);
+      allow delete: if isAdmin();
     }
 
-    // 2. Каталог автомобилей (cars)
     match /cars/{carId} {
-      // Любой посетитель (даже гость) может просматривать каталог
       allow read: if true;
-      // Авторизованный администратор может добавлять, изменять и удалять авто
-      allow create, update, delete: if isAuthenticated();
+      allow create, update, delete: if isAdmin();
     }
 
-    // 3. Заявки и заказы (applications)
     match /applications/{appId} {
-      // Чтение заявок авторизованными пользователями
-      allow read: if isAuthenticated();
-      // Создание заявки клиентом
-      allow create: if isAuthenticated() && request.resource.data.userId == request.auth.uid;
-      // Обновление и удаление заявок
-      allow update, delete: if isAuthenticated();
+      allow read: if isAdmin() || (signedIn() && resource.data.userId == request.auth.uid);
+      allow create: if request.resource.data.status == 'new'
+        && request.resource.data.userName is string
+        && request.resource.data.userPhone is string
+        && request.resource.data.carTitle is string
+        && request.resource.data.carPrice is number
+        && ((signedIn() && request.resource.data.userId == request.auth.uid)
+          || (!signedIn() && request.resource.data.userId == 'guest'));
+      allow update: if isAdmin()
+        || (signedIn()
+          && resource.data.userId == request.auth.uid
+          && resource.data.status in ['new', 'in_progress']
+          && request.resource.data.status == 'cancelled'
+          && request.resource.data.diff(resource.data).affectedKeys()
+            .hasOnly(['status', 'updatedAt']));
+      allow delete: if isAdmin();
     }
 
-    // 4. Отзывы и комментарии (reviews)
     match /reviews/{reviewId} {
-      // Отзывы видны всем посетителям
       allow read: if true;
-      // Добавление отзыва авторизованным пользователем
-      allow create: if isAuthenticated() && request.resource.data.userId == request.auth.uid;
-      // Редактирование и модерация отзывов
-      allow update, delete: if isAuthenticated();
+      allow create: if signedIn()
+        && request.resource.data.userId == request.auth.uid
+        && request.resource.data.rating is number
+        && request.resource.data.rating >= 1
+        && request.resource.data.rating <= 5
+        && request.resource.data.comment is string;
+      allow update: if isAdmin()
+        || (signedIn()
+          && resource.data.userId == request.auth.uid
+          && request.resource.data.diff(resource.data).affectedKeys()
+            .hasOnly(['rating', 'comment', 'updatedAt']));
+      allow delete: if isAdmin() || (signedIn() && resource.data.userId == request.auth.uid);
     }
 
-    // 5. Избранное (favorites)
-    match /favorites/{favId} {
-      allow read, write: if isAuthenticated();
+    match /favorites/{favoriteId} {
+      allow read: if isAdmin() || (signedIn() && resource.data.userId == request.auth.uid);
+      allow create, update: if signedIn()
+        && request.resource.data.userId == request.auth.uid
+        && favoriteId.matches(request.auth.uid + '_.*');
+      allow delete: if isAdmin() || (signedIn() && resource.data.userId == request.auth.uid);
     }
-
   }
 }

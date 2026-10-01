@@ -170,7 +170,7 @@
                         </div>
 
                         <div class="wm-detail-btns-row">
-                            <button class="wm-btn-calc" id="btnMainCalc">Рассчитать стоимость</button>
+                            <button class="wm-btn-calc quick-order-btn" id="btnMainCalc">Рассчитать стоимость</button>
                             <button class="wm-btn-consult consultation-button">Получить консультацию</button>
                         </div>
                     </div>
@@ -180,11 +180,7 @@
                         <h3>История автомобиля</h3>
                         <div class="wm-history-status-green">
                             <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
-                            <span>Происшествий и кузовных работ не зафиксировано</span>
-                        </div>
-                        <div class="wm-full-report-box" id="openFullReportBtn">
-                            <div class="title">Полный отчёт по автомобилю</div>
-                            <div class="desc">Страховая история, кузовные работы, толщинометрия и детальные фото с осмотра в Сеуле</div>
+                            <span>Происшествий и кузовных работ не зафиксировано (Отличная история)</span>
                         </div>
                     </div>
 
@@ -198,7 +194,7 @@
                                 <span style="font-weight: 800; font-size: 16px;" id="trimRowName">2.5T Gasoline AWD</span>
                                 <div style="display: flex; align-items: center; gap: 14px;">
                                     <span style="font-size: 14px; font-weight: 700; color: #111827;" id="trimRowPrice">от 17 437 807 ₸ ~ $38 325</span>
-                                    <button class="wm-btn-want" id="btnTrimWant">Хочу такую</button>
+                                    <button class="wm-btn-want quick-order-btn" id="btnTrimWant">Хочу такую</button>
                                 </div>
                             </div>
                             <div class="wm-trim-specs-row">
@@ -255,7 +251,7 @@
                     <div class="wm-widget-price-label">Стоимость авто:</div>
                     <div class="wm-widget-huge-price" id="stickyUSD">$38 325</div>
 
-                    <button class="wm-widget-submit-btn" id="stickyOrderBtn">
+                    <button class="wm-widget-submit-btn quick-order-btn" id="stickyOrderBtn">
                         Рассчитать стоимость
                     </button>
 
@@ -291,40 +287,43 @@
 
     <!-- МОДАЛЬНОЕ ОКНО: ЗАЯВКА НА АВТО -->
     <div class="modal-overlay" id="orderModal">
-        <div class="modal-card">
-            <button class="modal-close-btn">&times;</button>
-            <h3 class="modal-title">Расчет стоимости авто под ключ</h3>
-            <p class="modal-desc">Оставьте заявку, менеджер подготовит детальный расчет доставки из Кореи и растаможки.</p>
-            
-            <div style="background:#f8fafc; border-radius:6px; padding:12px; margin-bottom:20px; border:1px solid #edf2f7;">
-                <h4 id="modalCarTitle" style="color:#1a202c; font-size:16px; margin-bottom:4px;">-</h4>
-                <div id="modalCarPrice" style="color:#2563eb; font-weight:800; font-size:18px;">-</div>
+        <div class="modal-card calculator-modal-card">
+            <button class="modal-close-btn" type="button" aria-label="Закрыть">&times;</button>
+            <h3 class="modal-title">Рассчитать стоимость</h3>
+            <p class="calculator-callback">☎ Перезвоним в течение минуты</p>
+
+            <div class="calculator-car-summary">
+                <div>
+                    <h4 id="modalCarTitle">-</h4>
+                    <div class="calculator-price-caption">Ориентировочная стоимость под ключ</div>
+                    <div class="calculator-total" id="modalCarPrice" data-raw-price="0">-</div>
+                </div>
+                <div class="calculator-country"><span aria-hidden="true">🇰🇷</span> КОРЕЯ</div>
+                <div class="calculator-price-breakdown" aria-live="polite">
+                    <span>Цена в Корее: <strong id="modalCalcKoreaPrice">-</strong></span>
+                    <span>Доставка: <strong id="modalCalcShipping">-</strong></span>
+                    <span>Таможня и оформление: <strong id="modalCalcCustoms">-</strong></span>
+                </div>
             </div>
 
             <form id="orderModalForm">
                 <input type="hidden" id="modalCarId">
                 <input type="hidden" id="modalCarImage">
+                <input type="hidden" id="modalUserName" value="Клиент">
 
-                <div class="input-group">
-                    <label for="modalUserName">Ваше имя</label>
-                    <input type="text" id="modalUserName" required placeholder="Иван">
+                <label class="calculator-phone-label" for="modalUserPhone">Номер телефона</label>
+                <div class="calculator-phone-row">
+                    <span class="calculator-phone-prefix">🇰🇿</span>
+                    <input type="tel" id="modalUserPhone" autocomplete="tel" required
+                        placeholder="+7 777 777-77-77" pattern="\+?[0-9\s()\-]{10,20}">
                 </div>
-
-                <div class="input-group">
-                    <label for="modalUserPhone">Телефон</label>
-                    <input type="tel" id="modalUserPhone" required placeholder="+7 (___) ___-__-__">
-                </div>
-
-                <div class="input-group">
-                    <label for="modalUserComment">Город доставки и пожелания</label>
-                    <textarea id="modalUserComment" placeholder="Алматы / Астана / Москва, комплектация..."></textarea>
-                </div>
-
-                <div style="display:flex; gap:12px; margin-top:16px;">
-                    <button type="button" class="secondary-btn modal-cancel-btn">Отмена</button>
-                    <button type="submit" class="primary-btn" style="height:44px; background:#2563eb;">Получить расчет</button>
-                </div>
+                <label class="calculator-consent">
+                    <input type="checkbox" id="modalDataConsent" required>
+                    <span>Я согласен(на) на обработку персональных данных</span>
+                </label>
+                <button type="submit" class="primary-btn calculator-submit">Отправить</button>
             </form>
+            <p class="calculator-privacy">Мы используем ваш номер только для связи по этой заявке.</p>
         </div>
     </div>
 
@@ -365,8 +364,8 @@
     <!-- СКРИПТЫ -->
     <script type="module" src="js/main.js"></script>
     <script type="module">
-        import { fetchCarById, subscribeToReviews, addReview, deleteReview, formatUSD, formatKRW, formatKZT } from "./js/cars.js";
-        import { formatDate, showToast, getCurrentUserWithProfile, openModal } from "./js/utils.js";
+        import { fetchCarById, subscribeToReviews, addReview, deleteReview, getCarPrices, formatUSD, formatKRW, formatKZT } from "./js/cars.js";
+        import { formatDate, showToast, getCurrentUserWithProfile } from "./js/utils.js";
 
         const urlParams = new URLSearchParams(window.location.search);
         const carId = urlParams.get("id");
@@ -394,10 +393,7 @@
             const title = `${currentCar.year} ${currentCar.brand} ${currentCar.model}`;
             document.title = `${title} из Кореи — KoreaAuto`;
 
-            const priceUSD = currentCar.priceUSD || (currentCar.price > 100000 ? Math.round(currentCar.price / 90) : (currentCar.price || 38325));
-            const priceKRW = currentCar.priceKRW || Math.round(priceUSD * 1330);
-            const priceKZT = currentCar.priceKZT || Math.round(priceUSD * 455);
-            const marketUSD = currentCar.marketPriceUSD || Math.round(priceUSD * 1.05 + 1958);
+            const { usd: priceUSD, krw: priceKRW, kzt: priceKZT, marketUSD } = getCarPrices(currentCar);
 
             document.getElementById("bcBrand").textContent = currentCar.brand;
             document.getElementById("bcModel").textContent = currentCar.model;
@@ -454,35 +450,20 @@
             sliderImages = imgs;
             renderSlider();
 
-            // Order Modal handlers
-            const openOrder = async () => {
-                const { user, profile } = await getCurrentUserWithProfile();
-                document.getElementById("modalCarTitle").textContent = `${currentCar.year} ${currentCar.brand} ${currentCar.model}`;
-                document.getElementById("modalCarPrice").textContent = formatUSD(priceUSD) + ` (${formatKZT(priceKZT)})`;
-                document.getElementById("modalCarId").value = currentCar.id;
-                document.getElementById("modalCarImage").value = mainImg;
-                if (user) {
-                    document.getElementById("modalUserName").value = profile?.displayName || user.displayName || "";
-                    document.getElementById("modalUserPhone").value = profile?.phone || "";
-                }
-                openModal("orderModal");
-            };
+            document.querySelectorAll(".quick-order-btn").forEach(button => {
+                button.dataset.id = currentCar.id;
+                button.dataset.title = title;
+                button.dataset.price = priceUSD;
+                button.dataset.priceKzt = priceKZT;
+                button.dataset.image = currentCar.imageUrl || sliderImages[0] || "";
+            });
 
-            document.getElementById("btnMainCalc").addEventListener("click", openOrder);
-            document.getElementById("stickyOrderBtn").addEventListener("click", openOrder);
-            document.getElementById("btnTrimWant").addEventListener("click", openOrder);
-
-            // Share button
+            // Поделиться ссылкой
             document.getElementById("shareBtn").addEventListener("click", () => {
                 if (navigator.clipboard) {
                     navigator.clipboard.writeText(window.location.href);
-                    showToast("Ссылка на автомобиль скопирована в буфер обмена!", "success");
+                    showToast("Ссылка на автомобиль скопирована!", "success");
                 }
-            });
-
-            // Report button
-            document.getElementById("openFullReportBtn").addEventListener("click", () => {
-                showToast("Полный отчет осмотра Encar с толщинометрией открыт!", "info");
             });
 
             // Setup Real-time reviews

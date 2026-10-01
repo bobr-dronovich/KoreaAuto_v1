@@ -179,21 +179,23 @@
               </select>
             </div>
 
-            <!-- Цена (руб.) -->
+            <!-- Цена (₸) -->
             <div class="filter-group">
-              <label class="filter-label">Цена, ₽</label>
+              <label class="filter-label">Цена, ₸</label>
               <div class="range-row">
                 <input
                   type="number"
                   id="filterMinPrice"
                   class="filter-input"
-                  placeholder="От"
+                  placeholder="От (₸)"
+                  step="500000"
                 />
                 <input
                   type="number"
                   id="filterMaxPrice"
                   class="filter-input"
-                  placeholder="До"
+                  placeholder="До (₸)"
+                  step="500000"
                 />
               </div>
             </div>
@@ -275,84 +277,48 @@
       </div>
     </main>
 
-    <!-- МОДАЛЬНОЕ ОКНО: БЫСТРЫЙ ЗАКАЗ АВТО -->
+    <!-- МОДАЛЬНОЕ ОКНО: РАСЧЕТ СТОИМОСТИ И ЗАКАЗ АВТО -->
     <div class="modal-overlay" id="orderModal">
-      <div class="modal-card">
-        <button class="modal-close-btn">&times;</button>
-        <h3 class="modal-title">Заявка на автомобиль</h3>
-        <p class="modal-desc">
-          Оставьте ваши контакты, и мы забронируем выбранное авто и рассчитаем
-          полную стоимость под ключ.
-        </p>
+      <div class="modal-card calculator-modal-card">
+        <button class="modal-close-btn" type="button" aria-label="Закрыть">&times;</button>
+        <h3 class="modal-title">Рассчитать стоимость</h3>
+        <p class="calculator-callback">☎ Перезвоним в течение минуты</p>
 
-        <div
-          style="
-            background: #f8fafc;
-            border-radius: 6px;
-            padding: 12px;
-            margin-bottom: 20px;
-            border: 1px solid #edf2f7;
-          "
-        >
-          <h4
-            id="modalCarTitle"
-            style="color: #1a202c; font-size: 16px; margin-bottom: 4px"
-          >
-            -
-          </h4>
-          <div
-            id="modalCarPrice"
-            style="color: #e52b38; font-weight: 800; font-size: 18px"
-          >
-            -
+        <div class="calculator-car-summary">
+          <div>
+            <h4 id="modalCarTitle">-</h4>
+            <div class="calculator-price-caption">Ориентировочная стоимость под ключ</div>
+            <div class="calculator-total" id="modalCarPrice" data-raw-price="0">-</div>
+          </div>
+          <div class="calculator-country"><span aria-hidden="true">🇰🇷</span> КОРЕЯ</div>
+          <div class="calculator-price-breakdown" aria-live="polite">
+            <span>Цена в Корее: <strong id="modalCalcKoreaPrice">-</strong></span>
+            <span>Доставка: <strong id="modalCalcShipping">-</strong></span>
+            <span>Таможня и оформление: <strong id="modalCalcCustoms">-</strong></span>
           </div>
         </div>
 
         <form id="orderModalForm">
-          <input type="hidden" id="modalCarId" />
-          <input type="hidden" id="modalCarImage" />
+          <input type="hidden" id="modalCarId">
+          <input type="hidden" id="modalCarImage">
+          <input type="hidden" id="modalUserName" value="Клиент">
 
-          <div class="input-group">
-            <label for="modalUserName">Ваше имя</label>
-            <input
-              type="text"
-              id="modalUserName"
-              required
-              placeholder="Иван Иванов"
-            />
+          <label class="calculator-phone-label" for="modalUserPhone">Номер телефона</label>
+          <div class="calculator-phone-row">
+            <span class="calculator-phone-prefix">🇰🇿</span>
+            <input type="tel" id="modalUserPhone" autocomplete="tel" required
+              placeholder="+7 777 777-77-77" pattern="\+?[0-9\s()\-]{10,20}">
           </div>
 
-          <div class="input-group">
-            <label for="modalUserPhone">Телефон</label>
-            <input
-              type="tel"
-              id="modalUserPhone"
-              required
-              placeholder="+7 (999) 000-00-00"
-            />
-          </div>
-
-          <div class="input-group">
-            <label for="modalUserComment">Пожелания / комментарий</label>
-            <textarea
-              id="modalUserComment"
-              placeholder="Желаемый цвет, комплектация, город доставки..."
-            ></textarea>
-          </div>
-
-          <div style="display: flex; gap: 12px; margin-top: 16px">
-            <button type="button" class="secondary-btn modal-cancel-btn">
-              Отмена
-            </button>
-            <button
-              type="submit"
-              class="primary-btn"
-              style="height: 44px; font-size: 15px"
-            >
-              Отправить заявку
-            </button>
-          </div>
+          <label class="calculator-consent">
+            <input type="checkbox" id="modalDataConsent" required>
+            <span>Я согласен(на) на обработку персональных данных</span>
+          </label>
+          <button type="submit" class="primary-btn calculator-submit">
+            Отправить
+          </button>
         </form>
+        <p class="calculator-privacy">Мы используем ваш номер только для связи по этой заявке.</p>
       </div>
     </div>
 

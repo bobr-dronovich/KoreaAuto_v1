@@ -1,8 +1,8 @@
 // ==========================================================================
-// KoreaAuto_v1 - Catalog Filters & Search Management
+// Фильтры и поиск каталога.
 // ==========================================================================
 
-import { fetchCars, renderCarCard } from "./cars.js";
+import { fetchCars, renderCarCard, subscribeToLatestCars } from "./cars.js";
 import { isCarInFavorites, toggleFavorite } from "./favorites.js";
 
 export class CatalogManager {
@@ -12,7 +12,6 @@ export class CatalogManager {
         this.countDisplay = document.getElementById("catalogCount");
         this.emptyState = document.getElementById("emptyCatalogState");
 
-        // Filter elements
         this.brandSelect = document.getElementById("filterBrand");
         this.fuelSelect = document.getElementById("filterFuel");
         this.minPriceInput = document.getElementById("filterMinPrice");
@@ -26,6 +25,8 @@ export class CatalogManager {
         this.hasMore = false;
         this.isLoading = false;
         this.allLoadedCars = [];
+        this.refreshPending = false;
+        this.filtersPending = false;
 
         this.init();
     }
@@ -33,7 +34,6 @@ export class CatalogManager {
     init() {
         if (!this.container) return;
 
-        // Event listeners for filters
         if (this.brandSelect) this.brandSelect.addEventListener("change", () => this.applyFilters());
         if (this.fuelSelect) this.fuelSelect.addEventListener("change", () => this.applyFilters());
         if (this.sortSelect) this.sortSelect.addEventListener("change", () => this.applyFilters());
@@ -59,7 +59,6 @@ export class CatalogManager {
             this.loadMoreBtn.addEventListener("click", () => this.loadMore());
         }
 
-        // Live debounced search input
         if (this.searchInput) {
             let debounceTimer = null;
             this.searchInput.addEventListener("input", () => {
@@ -70,14 +69,22 @@ export class CatalogManager {
             });
         }
 
-        // Check search query in URL param (e.g. ?q=Santa)
         const urlParams = new URLSearchParams(window.location.search);
         const qParam = urlParams.get("q");
         if (qParam && this.searchInput) {
             this.searchInput.value = qParam;
         }
 
-        // Initial fetch
+        this.applyFilters();
+        this.unsubscribeCars = subscribeToLatestCars(() => this.refreshCatalog());
+        window.addEventListener("pagehide", () => this.unsubscribeCars?.(), { once: true });
+    }
+
+    refreshCatalog() {
+        if (this.isLoading) {
+            this.refreshPending = true;
+            return;
+        }
         this.applyFilters();
     }
 
@@ -94,8 +101,12 @@ export class CatalogManager {
     }
 
     async applyFilters() {
-        if (this.isLoading) return;
+        if (this.isLoading) {
+            this.filtersPending = true;
+            return;
+        }
         this.isLoading = true;
+        this.filtersPending = false;
         this.lastDoc = null;
         this.allLoadedCars = [];
 
@@ -107,9 +118,6 @@ export class CatalogManager {
         `;
 
         const filters = this.getFilterState();
-        const isSearching = Boolean(filters.search);
-
-        // When actively searching, fetch larger batch so we don't miss matching cars beyond page 1
         const result = await fetchCars({
             brand: filters.brand,
             fuel: filters.fuel,
@@ -118,21 +126,21 @@ export class CatalogManager {
             minYear: filters.minYear,
             sortBy: filters.sortBy,
             lastDoc: null,
-            pageSize: isSearching ? 100 : 6
+            pageSize: 10,
+            searchMatcher: car => checkCarMatchesSearch(car, filters.search)
         });
 
-        let cars = result.cars;
-
-        // Enhanced smart text search with Russian & English aliases
-        if (filters.search) {
-            cars = cars.filter(c => checkCarMatchesSearch(c, filters.search));
-        }
-
-        this.allLoadedCars = cars;
+        this.allLoadedCars = result.cars;
         this.lastDoc = result.lastDoc;
-        this.hasMore = isSearching ? false : result.hasMore;
+        this.hasMore = result.hasMore;
         this.isLoading = false;
 
+        if (this.refreshPending || this.filtersPending) {
+            this.refreshPending = false;
+            this.filtersPending = false;
+            this.applyFilters();
+            return;
+        }
         this.renderCatalog();
     }
 
@@ -154,18 +162,11 @@ export class CatalogManager {
             minYear: filters.minYear,
             sortBy: filters.sortBy,
             lastDoc: this.lastDoc,
-            pageSize: 6
+            pageSize: 10,
+            searchMatcher: car => checkCarMatchesSearch(car, filters.search)
         });
 
-        let newCars = result.cars;
-        if (filters.search) {
-            newCars = newCars.filter(c => 
-                (c.brand && c.brand.toLowerCase().includes(filters.search)) ||
-                (c.model && c.model.toLowerCase().includes(filters.search))
-            );
-        }
-
-        this.allLoadedCars.push(...newCars);
+        this.allLoadedCars.push(...result.cars);
         this.lastDoc = result.lastDoc;
         this.hasMore = result.hasMore;
         this.isLoading = false;
@@ -175,6 +176,12 @@ export class CatalogManager {
             this.loadMoreBtn.disabled = false;
         }
 
+        if (this.refreshPending || this.filtersPending) {
+            this.refreshPending = false;
+            this.filtersPending = false;
+            this.applyFilters();
+            return;
+        }
         this.renderCatalog();
     }
 
@@ -275,4 +282,3 @@ export function checkCarMatchesSearch(car, rawQuery) {
         return tokens.every(token => carText.includes(token));
     });
 }
-

@@ -1,6 +1,4 @@
-// ==========================================================================
-// KoreaAuto_v1 - User Profile & History Service
-// ==========================================================================
+// личный кабинет пользователя: данные профиля, история заявок и управление отзывами
 
 import { 
     auth, 
@@ -18,48 +16,77 @@ import {
     updateProfile
 } from "./firebase.js";
 
-import { getUserProfile, showToast, formatDate, getStatusBadge } from "./utils.js";
+import { 
+    getUserProfile, 
+    getLocalProfile, 
+    saveLocalProfile, 
+    showToast, 
+    formatDate, 
+    getStatusBadge 
+} from "./utils.js";
+
 import { subscribeUserApplications, cancelApplication } from "./applications.js";
 import { updateReview, deleteReview } from "./cars.js";
 
 export function initProfilePage() {
     const nameInput = document.getElementById("profileName");
     const phoneInput = document.getElementById("profilePhone");
-    const emailDisplay = document.getElementById("profileEmail");
+    const headingName = document.getElementById("profileHeadingName") || document.getElementById("profileEmail");
+    const emailSubtitle = document.getElementById("profileEmailSubtitle");
     const emailInput = document.getElementById("profileEmailInput");
     const avatarLetter = document.getElementById("avatarLetter");
     const roleBadge = document.getElementById("profileRoleBadge");
     const profileForm = document.getElementById("profileForm");
 
-    // Listen to Firebase Auth state directly
+    // функция быстрого обновления интерфейса профиля
+    function applyUserData(user, data = {}) {
+        const email = user?.email || data?.email || "";
+        const displayName = data?.displayName || user?.displayName || (email ? email.split("@")[0] : "Клиент");
+        const phone = data?.phone || "";
+        const role = data?.role || "user";
+        const isAdmin = role.trim() === "admin";
+
+        if (headingName) headingName.textContent = displayName;
+        if (emailSubtitle) emailSubtitle.textContent = email;
+        if (emailInput) emailInput.value = email;
+        if (nameInput) nameInput.value = displayName;
+        if (phoneInput && phone) phoneInput.value = phone;
+        if (avatarLetter) avatarLetter.textContent = (displayName[0] || "U").toUpperCase();
+        
+        if (roleBadge) {
+            roleBadge.textContent = isAdmin ? "Администратор" : "Пользователь";
+            if (isAdmin) {
+                roleBadge.classList.add("admin-tag");
+            } else {
+                roleBadge.classList.remove("admin-tag");
+            }
+        }
+    }
+
+    // слушаем авторизацию firebase
     onAuthStateChanged(auth, async (user) => {
         if (!user) {
-            // Not logged in - redirect to login
+            // не залогинен - отправляем на вход
             window.location.href = `login.html?returnUrl=${encodeURIComponent(window.location.pathname)}`;
             return;
         }
 
-        // 1. Immediately set email from user.email
-        if (emailDisplay) emailDisplay.textContent = user.email;
-        if (emailInput) emailInput.value = user.email;
+        // 1. мгновенно показываем почту и кэшированные данные без ожидания сети
+        const cached = getLocalProfile(user.uid) || {};
+        applyUserData(user, cached);
 
-        // 2. Fetch profile from Firestore
-        let profile = await getUserProfile(user.uid);
-
-        const displayName = profile?.displayName || user.displayName || user.email.split("@")[0];
-        if (nameInput) nameInput.value = displayName;
-        if (phoneInput) phoneInput.value = profile?.phone || "";
-        if (avatarLetter) avatarLetter.textContent = (displayName[0] || "U").toUpperCase();
-        
-        if (roleBadge) {
-            const isAdmin = profile?.role && profile.role.trim() === "admin";
-            roleBadge.textContent = isAdmin ? "Администратор" : "Пользователь";
-            if (isAdmin) roleBadge.classList.add("admin-tag");
+        // 2. подтягиваем свежие данные из базы firestore
+        try {
+            const profile = await getUserProfile(user.uid);
+            if (profile) {
+                applyUserData(user, profile);
+            }
+        } catch (e) {
+            console.warn("ошибка загрузки профиля из сети:", e);
         }
 
-        // 3. Setup form submission
+        // 3. сохранение профиля по кнопке
         if (profileForm) {
-            // Remove any existing submit listeners
             profileForm.onsubmit = async (e) => {
                 e.preventDefault();
                 const btn = profileForm.querySelector("button[type='submit']");
@@ -69,8 +96,26 @@ export function initProfilePage() {
                 const newName = nameInput.value.trim();
                 const newPhone = phoneInput.value.trim();
 
+                // сохраняем в локалсторадж сразу
+                const currentProfile = getLocalProfile(user.uid) || {};
+                const updatedData = {
+                    ...currentProfile,
+                    displayName: newName,
+                    phone: newPhone,
+                    email: user.email
+                };
+                saveLocalProfile(user.uid, updatedData);
+                applyUserData(user, updatedData);
+
                 try {
-                    // Update in Firestore
+                    // обновляем имя в учетке auth
+                    try {
+                        await updateProfile(user, { displayName: newName });
+                    } catch (eAuth) {
+                        console.warn("auth updateProfile:", eAuth);
+                    }
+
+                    // пишем в firestore
                     await setDoc(doc(db, "users", user.uid), {
                         displayName: newName,
                         phone: newPhone,
@@ -78,16 +123,7 @@ export function initProfilePage() {
                         updatedAt: serverTimestamp()
                     }, { merge: true });
 
-                    // Also update Firebase Auth profile
-                    try {
-                        await updateProfile(user, { displayName: newName });
-                    } catch (eAuth) {
-                        console.warn("Auth updateProfile warning:", eAuth);
-                    }
-
-                    if (avatarLetter) avatarLetter.textContent = (newName[0] || "U").toUpperCase();
-
-                    // Update header user badge immediately
+                    // обновляем шапку сайта
                     const headerName = document.querySelector("#userMenuBtn span");
                     if (headerName) headerName.textContent = newName;
                     const headerDropdownName = document.querySelector("#userDropdown .name");
@@ -95,8 +131,8 @@ export function initProfilePage() {
 
                     showToast("Данные профиля успешно сохранены!", "success");
                 } catch (err) {
-                    console.error("Profile save error:", err);
-                    showToast("Ошибка обновления данных: " + err.message, "error");
+                    console.error("ошибка сохранения профиля:", err);
+                    showToast("Данные сохранены локально. Ошибка синхронизации с базой: " + err.message, "info");
                 } finally {
                     btn.disabled = false;
                     btn.textContent = "Сохранить изменения";
@@ -104,7 +140,7 @@ export function initProfilePage() {
             };
         }
 
-        // 4. Real-Time Applications Subscription
+        // 4. подписка на историю заявок в реальном времени (onSnapshot)
         const appsTableBody = document.getElementById("profileAppsTableBody");
         const emptyAppsNotice = document.getElementById("profileEmptyApps");
 
@@ -130,7 +166,7 @@ export function initProfilePage() {
                                 <span>${app.carTitle}</span>
                             </div>
                         </td>
-                        <td>${Number(app.carPrice || 0).toLocaleString("ru-RU")} ₽</td>
+                        <td>${Number(app.carPrice || 0).toLocaleString("ru-RU")} ₸</td>
                         <td>${formatDate(app.createdAt)}</td>
                         <td>${getStatusBadge(app.status)}</td>
                         <td>
@@ -140,7 +176,7 @@ export function initProfilePage() {
                 `;
             }).join("");
 
-            // Cancel handlers
+            // обработчики отмены заявки
             appsTableBody.querySelectorAll(".cancel-app-btn").forEach(btn => {
                 btn.addEventListener("click", () => {
                     cancelApplication(btn.getAttribute("data-id"));
@@ -148,12 +184,12 @@ export function initProfilePage() {
             });
         });
 
-        // 5. Load user reviews
+        // 5. загрузка отзывов текущего пользователя
         loadUserReviews(user.uid);
     });
 }
 
-// Load and manage user reviews
+// Загрузка отзывов юзера с возможностью редактирования и удаления
 async function loadUserReviews(userId) {
     const reviewsContainer = document.getElementById("userReviewsList");
     const emptyNotice = document.getElementById("emptyUserReviews");
@@ -194,6 +230,7 @@ async function loadUserReviews(userId) {
             </div>
         `).join("");
 
+        // кнопки удаления
         reviewsContainer.querySelectorAll(".delete-review-btn").forEach(btn => {
             btn.addEventListener("click", async () => {
                 if (confirm("Удалить этот отзыв?")) {
@@ -203,6 +240,7 @@ async function loadUserReviews(userId) {
             });
         });
 
+        // кнопки редактирования
         reviewsContainer.querySelectorAll(".edit-review-btn").forEach(btn => {
             btn.addEventListener("click", async () => {
                 const id = btn.getAttribute("data-id");
@@ -221,6 +259,6 @@ async function loadUserReviews(userId) {
         });
 
     } catch (e) {
-        console.error("Error loading user reviews:", e);
+        console.error("ошибка загрузки отзывов:", e);
     }
 }
