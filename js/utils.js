@@ -116,7 +116,7 @@ export function getLocalProfile(uid) {
 }
 
 // Получаем профиль из firestore с быстрым фолбэком на локальный кэш
-export async function getUserProfile(uid) {
+export async function getUserProfile(uid, { strict = false } = {}) {
     if (!uid) return null;
     const cached = getLocalProfile(uid);
 
@@ -128,7 +128,9 @@ export async function getUserProfile(uid) {
             saveLocalProfile(uid, fullProfile);
             return fullProfile;
         }
+        if (strict) return null;
     } catch (e) {
+        if (strict) throw e;
         console.warn("не удалось загрузить профиль из firestore, берем локальный:", e);
     }
 
@@ -175,12 +177,24 @@ export async function requireAuth(redirectUrl = "login.html") {
 
 // Проверка роли админа
 export async function requireAdmin(redirectUrl = "index.html") {
-    const { user, profile } = await getCurrentUserWithProfile();
+    const { user } = await getCurrentUserWithProfile();
     if (!user) {
-        window.location.href = "login.html";
+        const returnUrl = window.location.pathname + window.location.search;
+        window.location.href = `login.html?returnUrl=${encodeURIComponent(returnUrl)}`;
         return null;
     }
-    if (profile?.role !== "admin") {
+
+    let profile;
+    try {
+        profile = await getUserProfile(user.uid, { strict: true });
+    } catch (error) {
+        console.error("Не удалось проверить роль администратора в Firestore:", error);
+        showToast("Не удалось проверить права администратора. Проверьте подключение и правила Firestore.", "error");
+        return null;
+    }
+
+    const role = typeof profile?.role === "string" ? profile.role.trim().toLowerCase() : "";
+    if (role !== "admin") {
         showToast("Доступ запрещен. Нужны права администратора.", "error");
         setTimeout(() => {
             window.location.href = redirectUrl;

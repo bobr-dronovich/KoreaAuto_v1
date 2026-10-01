@@ -357,6 +357,11 @@ export async function initAdminPage() {
     const adminData = await requireAdmin();
     if (!adminData) return;
 
+    const accessPending = document.getElementById("adminAccessPending");
+    const adminContent = document.querySelector("main");
+    if (accessPending) accessPending.style.display = "none";
+    if (adminContent) adminContent.style.display = "";
+
     setupAdminTabs();
     loadDashboardStats();
     setupCarsManagement();
@@ -1132,6 +1137,7 @@ async function setupUsersManagement() {
 
         usersTableBody.innerHTML = snap.docs.map(d => {
             const u = { id: d.id, ...d.data() };
+            const userIsAdmin = typeof u.role === "string" && u.role.trim().toLowerCase() === "admin";
             return `
                 <tr>
                     <td><strong>${u.displayName || 'Без имени'}</strong></td>
@@ -1139,8 +1145,8 @@ async function setupUsersManagement() {
                     <td>${u.phone || '-'}</td>
                     <td>
                         <select class="filter-select change-user-role" data-id="${u.id}" style="height:32px;font-size:13px;width:140px;">
-                            <option value="user" ${u.role !== 'admin' ? 'selected' : ''}>Пользователь</option>
-                            <option value="admin" ${u.role === 'admin' ? 'selected' : ''}>Администратор</option>
+                            <option value="user" ${!userIsAdmin ? 'selected' : ''}>Пользователь</option>
+                            <option value="admin" ${userIsAdmin ? 'selected' : ''}>Администратор</option>
                         </select>
                     </td>
                     <td>${formatDate(u.createdAt)}</td>
@@ -1149,8 +1155,17 @@ async function setupUsersManagement() {
         }).join("");
 
         usersTableBody.querySelectorAll(".change-user-role").forEach(sel => {
+            const uid = sel.getAttribute("data-id");
+            if (uid === auth.currentUser?.uid) {
+                sel.disabled = true;
+                sel.title = "Нельзя менять роль своей учетной записи.";
+            }
             sel.addEventListener("change", async (e) => {
-                const uid = sel.getAttribute("data-id");
+                if (uid === auth.currentUser?.uid) {
+                    sel.value = "admin";
+                    showToast("Нельзя снять права администратора со своей учетной записи.", "error");
+                    return;
+                }
                 const newRole = e.target.value;
                 try {
                     await updateDoc(doc(db, "users", uid), {
@@ -1159,9 +1174,7 @@ async function setupUsersManagement() {
                     });
                     showToast(`Роль обновлена на ${newRole}!`, "success");
                 } catch (err) {
-                    sel.value = uid === auth.currentUser?.uid
-                        ? "admin"
-                        : (newRole === "admin" ? "user" : "admin");
+                    sel.value = newRole === "admin" ? "user" : "admin";
                     showToast("Ошибка: " + err.message, "error");
                 }
             });

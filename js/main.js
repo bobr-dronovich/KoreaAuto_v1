@@ -25,7 +25,8 @@ function initHeaderAuthState() {
     onAuthStateChanged(auth, async (user) => {
         if (user) {
             const profile = await getUserProfile(user.uid);
-            const isAdmin = profile?.role && profile.role.trim() === "admin";
+            const isAdmin = typeof profile?.role === "string"
+                && profile.role.trim().toLowerCase() === "admin";
             const displayName = profile?.displayName || user.displayName || user.email.split("@")[0];
 
             authContainer.innerHTML = `
