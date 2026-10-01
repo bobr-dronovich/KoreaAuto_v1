@@ -44,6 +44,15 @@ export function getCarPrices(car) {
     return { usd, krw, kzt, marketUSD };
 }
 
+function getFuelCategory(value) {
+    const text = String(value || "").trim().toLowerCase();
+    if (/электр|электро|electric|\bev\b/.test(text)) return "электро";
+    if (/гибрид|hybrid|\bhev\b|\bphev\b/.test(text)) return "гибрид";
+    if (/дизел|diesel/.test(text)) return "дизель";
+    if (/бензин|бенз|gasoline|petrol/.test(text)) return "бензин";
+    return text;
+}
+
 // Загружаем страницу машин из Firestore.
 export async function fetchCars({
     brand = "",
@@ -61,44 +70,67 @@ export async function fetchCars({
         const pageCars = [];
         let cursor = lastDoc;
         let reachedEnd = false;
+        let useClientSideFilters = false;
         const batchSize = Math.max(pageSize * 3, 30);
 
         while (pageCars.length <= pageSize && !reachedEnd) {
-            const constraints = [];
-            if (brand && brand !== "all") constraints.push(where("brand", "==", brand));
-            if (fuel && fuel !== "all") constraints.push(where("fuel", "==", fuel));
+            const filterConstraints = [];
+            if (!useClientSideFilters && brand && brand !== "all") {
+                filterConstraints.push(where("brand", "==", brand));
+            }
+
+            const sortConstraints = [];
 
             switch (sortBy) {
                 case "price_asc":
-                    constraints.push(orderBy("price", "asc"));
+                    sortConstraints.push(orderBy("price", "asc"));
                     break;
                 case "price_desc":
-                    constraints.push(orderBy("price", "desc"));
+                    sortConstraints.push(orderBy("price", "desc"));
                     break;
                 case "year_desc":
-                    constraints.push(orderBy("year", "desc"));
+                    sortConstraints.push(orderBy("year", "desc"));
                     break;
                 case "year_asc":
-                    constraints.push(orderBy("year", "asc"));
+                    sortConstraints.push(orderBy("year", "asc"));
                     break;
                 default:
-                    constraints.push(orderBy("createdAt", "desc"));
+                    sortConstraints.push(orderBy("createdAt", "desc"));
             }
 
-            if (cursor) constraints.push(startAfter(cursor));
-            constraints.push(limit(batchSize));
+            const pageConstraints = [...sortConstraints];
+            if (cursor) pageConstraints.push(startAfter(cursor));
+            pageConstraints.push(limit(batchSize));
 
-            const snapshot = await getDocs(query(carsRef, ...constraints));
+            let snapshot;
+            try {
+                snapshot = await getDocs(query(carsRef, ...filterConstraints, ...pageConstraints));
+            } catch (error) {
+                const needsCompositeIndex = error.code === "failed-precondition"
+                    && /index/i.test(error.message || "");
+                if (!needsCompositeIndex || useClientSideFilters) throw error;
+
+                console.warn("Составной индекс каталога отсутствует; фильтруем страницу на клиенте.", error);
+                useClientSideFilters = true;
+                snapshot = await getDocs(query(carsRef, ...pageConstraints));
+            }
             if (snapshot.empty) break;
 
             snapshot.forEach((docSnap) => {
                 const car = { id: docSnap.id, ...docSnap.data(), _doc: docSnap };
                 const { kzt } = getCarPrices(car);
+                const matchesBrand = !brand || brand === "all"
+                    || String(car.brand || "").trim().toLowerCase() === brand.trim().toLowerCase();
+                const carFuel = getFuelCategory(car.fuel || car.engine || car.trim);
+                const matchesFuel = !fuel || fuel === "all"
+                    || carFuel === getFuelCategory(fuel);
                 const matchesPrice = (minPrice === null || minPrice <= 0 || kzt >= minPrice)
                     && (maxPrice === null || maxPrice <= 0 || kzt <= maxPrice);
                 const matchesYear = minYear === null || minYear <= 0 || Number(car.year) >= minYear;
 
-                if (matchesPrice && matchesYear && searchMatcher(car)) pageCars.push(car);
+                if (matchesBrand && matchesFuel && matchesPrice && matchesYear && searchMatcher(car)) {
+                    pageCars.push(car);
+                }
             });
 
             cursor = snapshot.docs[snapshot.docs.length - 1];
